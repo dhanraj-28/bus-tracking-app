@@ -8,7 +8,7 @@ import {
   StyleSheet,
   SafeAreaView,
 } from "react-native";
-import Icon from "react-native-vector-icons/Ionicons"; // npm i react-native-vector-icons
+import { Ionicons } from "@expo/vector-icons"; // ✅ use Expo vector icons
 
 const BusData = [
   { id: "1", busNumber: "5E", routeName: "Avadi", destination: "Adayar", time: "8:10 AM" },
@@ -34,19 +34,18 @@ const TrackBusScreen = () => {
 
   const renderBusCard = ({ item }) => (
     <View style={styles.card}>
-      <View style={styles.leftSection}>
-        <Icon name="bus-outline" size={20} color="#000" />
+      {/* Left Bus Icon */}
+      <Ionicons name="bus-outline" size={26} color="#6A5ACD" style={{ marginRight: 10 }} />
+
+      {/* Route Info */}
+      <View style={styles.middleSection}>
         <Text style={styles.busNumber}>{item.busNumber}</Text>
-        <Text style={styles.routeName}>{item.routeName}</Text>
+        <Text style={styles.routeName}>{item.routeName} ➜ {item.destination}</Text>
         <Text style={styles.time}>{item.time}</Text>
       </View>
 
-      <Icon name="arrow-forward" size={20} color="#000" style={{ marginHorizontal: 15 }} />
-
-      <View style={styles.rightSection}>
-        <Text style={styles.destination}>{item.destination}</Text>
-        <Text style={styles.time}>{item.time}</Text>
-      </View>
+      {/* Right Bus Icon */}
+      <Ionicons name="bus-outline" size={26} color="#6A5ACD" />
     </View>
   );
 
@@ -55,9 +54,9 @@ const TrackBusScreen = () => {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity>
-          <Icon name="arrow-back" size={25} color="#000" />
+          <Ionicons name="arrow-back" size={25} color="#000" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>track bus</Text>
+        <Text style={styles.headerText}>Track Bus</Text>
       </View>
 
       {/* Search Bar */}
@@ -69,7 +68,7 @@ const TrackBusScreen = () => {
           value={searchQuery}
           onChangeText={handleSearch}
         />
-        <Icon name="search" size={22} color="#000" style={styles.searchIcon} />
+        <Ionicons name="search" size={22} color="#000" style={styles.searchIcon} />
       </View>
 
       {/* Bus List */}
@@ -106,7 +105,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "700",
     marginLeft: 10,
-    textTransform: "lowercase",
   },
   searchContainer: {
     flexDirection: "row",
@@ -132,7 +130,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     backgroundColor: "#fff",
-    borderRadius: 30,
+    borderRadius: 20,
     paddingVertical: 15,
     paddingHorizontal: 20,
     marginBottom: 15,
@@ -142,31 +140,23 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  leftSection: {
+  middleSection: {
     flex: 1,
-  },
-  rightSection: {
-    flex: 1,
-    alignItems: "flex-end",
+    alignItems: "center",
   },
   busNumber: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "700",
-    marginTop: 4,
+    color: "#333",
   },
   routeName: {
     fontSize: 14,
-    textTransform: "uppercase",
-    color: "#333",
-  },
-  destination: {
-    fontSize: 16,
-    fontWeight: "700",
+    color: "#555",
+    marginVertical: 4,
   },
   time: {
     fontSize: 12,
-    color: "#666",
-    marginTop: 4,
+    color: "#888",
   },
   notFoundContainer: {
     alignItems: "center",
