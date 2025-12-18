@@ -16,8 +16,8 @@ export default function MenuScreen({ navigation }) {
       <View style={styles.profileCard}>
         <FontAwesome5 name="user" size={22} />
         <View style={{ marginLeft: 10 }}>
-          <Text style={styles.profileName}>Dhanraj G</Text>
-          <Text style={styles.profileNumber}>7358730797</Text>
+          <Text style={styles.profileName}>Harini B</Text>
+          <Text style={styles.profileNumber}>9677659119</Text>
         </View>
       </View>
 

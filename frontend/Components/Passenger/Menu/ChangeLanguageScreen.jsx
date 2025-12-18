@@ -9,62 +9,102 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+/* ========= TRANSLATIONS ========= */
+const translations = {
+  en: {
+    title: "Language",
+    search: "Search",
+  },
+  ta: {
+    title: "மொழி",
+    search: "தேடல்",
+  },
+  te: {
+    title: "భాష",
+    search: "వెతకండి",
+  },
+  ml: {
+    title: "ഭാഷ",
+    search: "തിരയുക",
+  },
+  kn: {
+    title: "ಭಾಷೆ",
+    search: "ಹುಡುಕು",
+  },
+  hi: {
+    title: "भाषा",
+    search: "खोजें",
+  },
+  mr: {
+    title: "भाषा",
+    search: "शोधा",
+  },
+};
+
+/* ========= LANGUAGE LIST ========= */
+const languageList = [
+  { key: "en", label: "English" },
+  { key: "ta", label: "தமிழ்" },
+  { key: "te", label: "తెలుగు" },
+  { key: "ml", label: "മലയാളം" },
+  { key: "kn", label: "ಕನ್ನಡ" },
+  { key: "hi", label: "हिंदी" },
+  { key: "mr", label: "मराठी" },
+];
+
 export default function ChangeLanguageScreen({ navigation }) {
-  const [selectedLanguage, setSelectedLanguage] = useState("English (UK)");
+  const [selectedLang, setSelectedLang] = useState("en");
   const [searchText, setSearchText] = useState("");
 
-  const languages = [
-    "English (UK)",
-    "United States",
-    "Tamil",
-    "Telugu",
-    "Malayalam",
-    "Kannada",
-    "Hindi",
-    "Marathi",
-  ];
+  const currentLang = translations[selectedLang];
 
-  const filteredLanguages = languages.filter((lang) =>
-    lang.toLowerCase().includes(searchText.toLowerCase())
+  const filteredLanguages = languageList.filter((item) =>
+    item.label.toLowerCase().includes(searchText.toLowerCase())
   );
 
   return (
     <View style={styles.container}>
-      
       {/* Header */}
       <View style={styles.headerRow}>
         <Ionicons
           name="arrow-back"
-          size={28}
+          size={26}
           onPress={() => navigation.goBack()}
         />
-        <Text style={styles.headerText}>Language</Text>
+        <Text style={styles.headerText}>{currentLang.title}</Text>
       </View>
 
-      {/* Search bar */}
+      {/* Search */}
       <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="gray" style={styles.searchIcon} />
+        <Ionicons name="search" size={20} color="gray" />
         <TextInput
-          placeholder="Search"
+          placeholder={currentLang.search}
           value={searchText}
           onChangeText={setSearchText}
           style={styles.searchInput}
         />
       </View>
 
-      {/* Language list */}
+      {/* Language List */}
       <View style={styles.listCard}>
         <FlatList
           data={filteredLanguages}
-          keyExtractor={(item) => item}
+          keyExtractor={(item) => item.key}
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.languageRow}
-              onPress={() => setSelectedLanguage(item)}
+              onPress={() => setSelectedLang(item.key)}
             >
-              <Text style={styles.languageText}>{item}</Text>
+              <Text
+                style={[
+                  styles.languageText,
+                  selectedLang === item.key && styles.selectedText,
+                ]}
+              >
+                {item.label}
+              </Text>
 
-              {selectedLanguage === item && (
+              {selectedLang === item.key && (
                 <Ionicons name="checkmark" size={22} />
               )}
             </TouchableOpacity>
@@ -75,61 +115,51 @@ export default function ChangeLanguageScreen({ navigation }) {
   );
 }
 
-/* ========== Styles ========== */
+/* ========= STYLES ========= */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F7F7F7",
     padding: 20,
   },
-
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
   },
-
   headerText: {
     fontSize: 22,
     fontWeight: "700",
     marginLeft: 10,
   },
-
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#EFEFEF",
-    paddingHorizontal: 15,
-    paddingVertical: 12,
+    padding: 12,
     borderRadius: 12,
   },
-
-  searchIcon: {
-    marginRight: 10,
-  },
-
   searchInput: {
     flex: 1,
     fontSize: 16,
+    marginLeft: 10,
   },
-
   listCard: {
-    backgroundColor: "#FAFAF8",
+    backgroundColor: "#FFFFFF",
     marginTop: 25,
     borderRadius: 18,
-    elevation: 2,
   },
-
   languageRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingVertical: 18,
-    paddingHorizontal: 18,
+    padding: 18,
     borderBottomWidth: 1,
     borderBottomColor: "#E5E5E5",
   },
-
   languageText: {
     fontSize: 17,
+  },
+  selectedText: {
+    fontWeight: "700",
   },
 });
