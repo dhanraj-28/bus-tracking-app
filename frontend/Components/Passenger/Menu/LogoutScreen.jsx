@@ -1,62 +1,62 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import React, { useContext } from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { LanguageContext, translations } from "../../../context/LanguageContext";
 
-const LogoutScreen = ({ navigation }) => {
+export default function LogoutScreen({ navigation }) {
+  const { language } = useContext(LanguageContext);
+  const t = translations[language];
 
   const handleLogout = () => {
-    // If you are using JWT / async storage, clear user token here
-    // Example:
-    // await AsyncStorage.removeItem('userToken');
-
     Alert.alert(
-      "Logged Out",
-      "You have been successfully logged out.",
+      t.loggedOut,
+      t.loggedOutMsg,
       [
         {
           text: "OK",
-          onPress: () => navigation.replace("Login") // Go to login screen
-        }
+          onPress: () => navigation.replace("Menu"),
+        },
       ]
     );
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Are you sure you want to log out?</Text>
+      <Text style={styles.title}>{t.logoutConfirm}</Text>
 
       <TouchableOpacity style={styles.button} onPress={handleLogout}>
-        <Text style={styles.buttonText}>Logout</Text>
+        <Text style={styles.buttonText}>{t.logoutBtn}</Text>
       </TouchableOpacity>
     </View>
   );
-};
+}
 
-export default LogoutScreen;
-
+/* ✅ STYLES — THIS WAS MISSING */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#F4F4F4",
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
-    backgroundColor: "#fff",
+    padding: 20,
   },
+
   title: {
     fontSize: 20,
     fontWeight: "600",
     marginBottom: 30,
     textAlign: "center",
   },
+
   button: {
-    width: "70%",
-    padding: 15,
-    backgroundColor: "#ff3b30",
+    backgroundColor: "#E53935",
+    paddingVertical: 14,
+    paddingHorizontal: 40,
     borderRadius: 10,
-    alignItems: "center",
   },
+
   buttonText: {
     color: "#fff",
-    fontSize: 18,
-    fontWeight: "500",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

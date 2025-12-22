@@ -1,165 +1,129 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
-  StyleSheet,
   FlatList,
+  StyleSheet,
+  TextInput,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-/* ========= TRANSLATIONS ========= */
-const translations = {
-  en: {
-    title: "Language",
-    search: "Search",
-  },
-  ta: {
-    title: "மொழி",
-    search: "தேடல்",
-  },
-  te: {
-    title: "భాష",
-    search: "వెతకండి",
-  },
-  ml: {
-    title: "ഭാഷ",
-    search: "തിരയുക",
-  },
-  kn: {
-    title: "ಭಾಷೆ",
-    search: "ಹುಡುಕು",
-  },
-  hi: {
-    title: "भाषा",
-    search: "खोजें",
-  },
-  mr: {
-    title: "भाषा",
-    search: "शोधा",
-  },
-};
-
-/* ========= LANGUAGE LIST ========= */
-const languageList = [
-  { key: "en", label: "English" },
-  { key: "ta", label: "தமிழ்" },
-  { key: "te", label: "తెలుగు" },
-  { key: "ml", label: "മലയാളം" },
-  { key: "kn", label: "ಕನ್ನಡ" },
-  { key: "hi", label: "हिंदी" },
-  { key: "mr", label: "मराठी" },
-];
+import { LanguageContext, translations } from "../../../context/LanguageContext";
 
 export default function ChangeLanguageScreen({ navigation }) {
-  const [selectedLang, setSelectedLang] = useState("en");
+  const { language, setLanguage } = useContext(LanguageContext);
   const [searchText, setSearchText] = useState("");
 
-  const currentLang = translations[selectedLang];
+  const t = translations[language];
 
-  const filteredLanguages = languageList.filter((item) =>
+  const languages = [
+    { key: "en", label: "English" },
+    { key: "ta", label: "தமிழ் (Tamil)" },
+    { key: "te", label: "తెలుగు (Telugu)" },
+    { key: "hi", label: "हिंदी (Hindi)" },
+    { key: "kn", label: "ಕನ್ನಡ (Kannada)" },
+    { key: "ml", label: "മലയാളം (Malayalam)" },
+    { key: "bn", label: "বাংলা (Bengali)" },
+    { key: "mr", label: "मराठी (Marathi)" },
+    { key: "ur", label: "اردو (Urdu)" },
+    { key: "fr", label: "Français (French)" },
+    { key: "es", label: "Español (Spanish)" },
+  ];
+
+  const filteredLanguages = languages.filter((item) =>
     item.label.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.headerRow}>
-        <Ionicons
-          name="arrow-back"
-          size={26}
-          onPress={() => navigation.goBack()}
-        />
-        <Text style={styles.headerText}>{currentLang.title}</Text>
-      </View>
+  /* 🔍 SEARCH HEADER */
+  const SearchHeader = () => (
+    <View>
+      <Text style={styles.title}>{t.languageTitle}</Text>
 
-      {/* Search */}
-      <View style={styles.searchContainer}>
-        <Ionicons name="search" size={20} color="gray" />
+      <View style={styles.searchBox}>
+        <Ionicons name="search" size={18} color="#777" />
         <TextInput
-          placeholder={currentLang.search}
+          style={styles.searchInput}
+          placeholder={t.search}
           value={searchText}
           onChangeText={setSearchText}
-          style={styles.searchInput}
-        />
-      </View>
-
-      {/* Language List */}
-      <View style={styles.listCard}>
-        <FlatList
-          data={filteredLanguages}
-          keyExtractor={(item) => item.key}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.languageRow}
-              onPress={() => setSelectedLang(item.key)}
-            >
-              <Text
-                style={[
-                  styles.languageText,
-                  selectedLang === item.key && styles.selectedText,
-                ]}
-              >
-                {item.label}
-              </Text>
-
-              {selectedLang === item.key && (
-                <Ionicons name="checkmark" size={22} />
-              )}
-            </TouchableOpacity>
-          )}
+          placeholderTextColor="#999"
         />
       </View>
     </View>
   );
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={filteredLanguages}
+        keyExtractor={(item) => item.key}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={SearchHeader}   // ✅ IMPORTANT
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.languageItem}
+            onPress={() => {
+              setLanguage(item.key);
+              navigation.goBack();
+            }}
+          >
+            <Text style={styles.languageText}>{item.label}</Text>
+
+            {language === item.key && (
+              <Ionicons name="checkmark" size={22} color="green" />
+            )}
+          </TouchableOpacity>
+        )}
+      />
+    </View>
+  );
 }
 
-/* ========= STYLES ========= */
+/* ===== STYLES ===== */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F7F7F7",
+    backgroundColor: "#F4F4F4",
     padding: 20,
   },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  headerText: {
+
+  title: {
     fontSize: 22,
     fontWeight: "700",
-    marginLeft: 10,
+    marginBottom: 10,
   },
-  searchContainer: {
+
+  searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#EFEFEF",
-    padding: 12,
+    backgroundColor: "#fff",
+    paddingHorizontal: 12,
     borderRadius: 12,
+    marginBottom: 15,
+    elevation: 3,
   },
+
   searchInput: {
     flex: 1,
-    fontSize: 16,
-    marginLeft: 10,
+    paddingVertical: 10,
+    paddingLeft: 8,
+    fontSize: 15,
   },
-  listCard: {
-    backgroundColor: "#FFFFFF",
-    marginTop: 25,
-    borderRadius: 18,
-  },
-  languageRow: {
+
+  languageItem: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#fff",
     padding: 18,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E5E5E5",
+    borderRadius: 12,
+    marginBottom: 12,
+    elevation: 3,
   },
+
   languageText: {
-    fontSize: 17,
-  },
-  selectedText: {
-    fontWeight: "700",
+    fontSize: 16,
+    fontWeight: "500",
   },
 });
