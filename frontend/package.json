@@ -19,6 +19,11 @@
     "expo-font": "~14.0.10",
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",
+
+    "react-native-linear-gradient": "^2.8.3",
+  
+    "expo-linear-gradient": "~15.0.8",
+    "@react-native-masked-view/masked-view": "0.3.2"
     "react-dom": "19.1.0",
     "react-native": "^0.81.5",
     "react-native-google-places-autocomplete": "^2.6.1",
