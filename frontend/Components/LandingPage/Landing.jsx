@@ -16,7 +16,7 @@ import { LinearGradient } from "expo-linear-gradient";
 
 const { width } = Dimensions.get("window");
 
-const Dashboard = () => {
+const Landing = () => {
   return (
     <SafeAreaView style={styles.container}>
       {/* Illustration */}
@@ -81,7 +81,7 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Landing;
 
 const styles = StyleSheet.create({
   container: {
