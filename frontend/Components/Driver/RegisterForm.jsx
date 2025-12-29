@@ -1,5 +1,8 @@
+
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function RegisterForm() {
   const [form, setForm] = useState({
@@ -7,6 +10,8 @@ export default function RegisterForm() {
     uid: "",
     password: "",
   });
+
+ 
 
   const handleRegister = () => {
     if (!form.name || !form.uid || !form.password) {
@@ -18,7 +23,14 @@ export default function RegisterForm() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>REGISTER FORM</Text>
+
+      {/* 🔙 Back Arrow + Title */}
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Register Form</Text>
+      </View>
 
       <View style={styles.formBox}>
         <Text style={styles.label}>NAME</Text>
@@ -56,15 +68,21 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     paddingHorizontal: 20,
-    paddingTop: 80,   // 👈 NOT center, NOT top corner
+    paddingTop: 60,
   },
 
-  title: {
+  /* Header */
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 30,
+  },
+
+  headerTitle: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#1A1A3F",
-    marginBottom: 30,
-    textAlign: "center",
+    marginLeft: 10,
   },
 
   formBox: {

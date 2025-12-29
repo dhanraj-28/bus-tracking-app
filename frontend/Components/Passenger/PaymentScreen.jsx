@@ -10,7 +10,7 @@ import {
   Image,
   Alert,
 } from 'react-native';
-import { router } from "expo-router";
+
 
 const PaymentScreen = ({ navigation }) => {
   const [method, setMethod] = useState('card'); // card | upi

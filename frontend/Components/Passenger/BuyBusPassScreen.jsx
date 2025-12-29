@@ -73,7 +73,7 @@ const BuyBusPassScreen = ({ navigation }) => {
     showsVerticalScrollIndicator={false}
   >
     <View style={styles.container}>
-      <Text style={styles.header}>Buy Bus Pass</Text>
+      
 
       {/* Time Period */}
       <View style={styles.card}>

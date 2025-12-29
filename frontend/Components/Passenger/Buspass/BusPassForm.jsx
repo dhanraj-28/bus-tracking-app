@@ -1,3 +1,4 @@
+
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
@@ -13,7 +14,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function BusPassForm() {
   const [image, setImage] = useState(null);
@@ -26,7 +28,8 @@ export default function BusPassForm() {
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
 
-  // 📅 Date Picker Handler
+
+
   const onChangeDate = (event, selectedDate) => {
     setShowDatePicker(false);
     if (selectedDate) {
@@ -35,7 +38,6 @@ export default function BusPassForm() {
     }
   };
 
-  // 📸 Image Upload
   const handleImagePick = async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
@@ -55,18 +57,24 @@ export default function BusPassForm() {
     }
   };
 
-  // ✅ Next Button
   const handleNext = () => {
     if (!form.name || !form.mobile || !form.email) {
       Alert.alert("Please fill all required fields");
       return;
     }
     Alert.alert("Proceed to next step");
-  }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Bus Pass</Text>
+
+      {/* 🔙 Back Arrow + Title (same position as other screens) */}
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Bus Pass</Text>
+      </View>
 
       <Text style={styles.sectionTitle}>Personal information</Text>
 
@@ -101,7 +109,9 @@ export default function BusPassForm() {
       <View style={styles.pickerContainer}>
         <Picker
           selectedValue={form.gender}
-          onValueChange={(itemValue) => setForm({ ...form, gender: itemValue })}
+          onValueChange={(itemValue) =>
+            setForm({ ...form, gender: itemValue })
+          }
         >
           <Picker.Item label="Select Gender" value="" />
           <Picker.Item label="Male" value="Male" />
@@ -142,19 +152,27 @@ export default function BusPassForm() {
     </ScrollView>
   );
 }
-const styles=StyleSheet.create({
+
+const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    alignItems: "center",
-    justifyContent: "center",
     padding: 20,
+    paddingTop: 60,   // ✅ SAME as other two screens
     backgroundColor: "#fff",
   },
-  title: {
-    fontSize: 22,
-    fontWeight: "700",
+
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 15,
   },
+
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    marginLeft: 10,
+  },
+
   sectionTitle: {
     fontSize: 16,
     color: "#6A5ACD",
@@ -162,12 +180,14 @@ const styles=StyleSheet.create({
     marginTop: 10,
     marginBottom: 8,
   },
+
   label: {
     alignSelf: "flex-start",
     fontSize: 14,
     marginBottom: 4,
     color: "#555",
   },
+
   input: {
     width: "100%",
     borderWidth: 1,
@@ -176,6 +196,7 @@ const styles=StyleSheet.create({
     padding: 10,
     marginBottom: 12,
   },
+
   pickerContainer: {
     width: "100%",
     borderWidth: 1,
@@ -183,6 +204,7 @@ const styles=StyleSheet.create({
     borderRadius: 8,
     marginBottom: 12,
   },
+
   uploadBtn: {
     backgroundColor: "#6A5ACD",
     padding: 12,
@@ -192,6 +214,7 @@ const styles=StyleSheet.create({
     marginVertical: 10,
     elevation: 3,
   },
+
   nextBtn: {
     backgroundColor: "#6A5ACD",
     padding: 12,
@@ -200,15 +223,17 @@ const styles=StyleSheet.create({
     alignItems: "center",
     elevation: 3,
   },
+
   btnText: {
     color: "#fff",
     fontWeight: "bold",
   },
+
   image: {
     width: 100,
     height: 100,
     borderRadius: 50,
     marginVertical: 10,
+    alignSelf: "center",
   },
-  
-})
+});

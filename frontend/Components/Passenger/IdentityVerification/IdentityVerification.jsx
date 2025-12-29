@@ -1,3 +1,5 @@
+
+
 import React, { useState } from "react";
 import {
   View,
@@ -8,11 +10,15 @@ import {
 } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import { Picker } from "@react-native-picker/picker";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function IdentityVerification() {
   const [selectedDoc, setSelectedDoc] = useState("");
   const [value, setValue] = useState("");
   const [file, setFile] = useState(null);
+
+
 
   const getPlaceholder = () => {
     if (selectedDoc === "aadhar") return "AADHAAR NUMBER";
@@ -50,7 +56,14 @@ export default function IdentityVerification() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Identity Verification</Text>
+
+      {/* 🔙 Back Arrow + Title */}
+      <View style={styles.headerRow}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Identity verification</Text>
+      </View>
 
       <View style={styles.formBox}>
         <Text style={styles.label}>Identity Proof</Text>
@@ -103,14 +116,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    paddingTop: 80,        // 👈 balanced vertical position
+    paddingTop: 60,
     paddingHorizontal: 20,
   },
 
-  header: {
-    fontSize: 22,
-    fontWeight: "bold",
+  /* Header */
+  headerRow: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 30,
+  },
+
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginLeft: 10,
   },
 
   formBox: {

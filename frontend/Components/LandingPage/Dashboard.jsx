@@ -7,9 +7,9 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 export default function  DashBoard() {
   const buttons = [
     { title: "Track bus", icon: "bus", color: "#5E60CE" },
-    { title: "Find bus route", icon: "map-outline", color: "#5E60CE" },
+    { title: "Find bus route", icon: "map", color: "#5E60CE" },
     { title: "Bus pass", icon: "clipboard-list", color: "#5E60CE" },
-    { title: "Bus stop near me", icon: "bus-stop", color: "#5E60CE" },
+    { title: "Bus stop near me", icon: "stop", color: "#5E60CE" },
     { title: "Feedback & Rating", icon: "headset", color: "#5E60CE" },
   ];
 
@@ -22,8 +22,8 @@ export default function  DashBoard() {
           <TouchableOpacity key={index} style={styles.card} activeOpacity={0.8}>
             {/* You can customize icons as per need */}
             <FontAwesome5 name={btn.icon} size={30} color="white" />
-            <Ionicons name={btn.icon} size={30} color="white" />
-             <MaterialIcons name={btn.icon} size={30} color="white" />
+            
+             
             <Text style={styles.label}>{btn.title}</Text>
           </TouchableOpacity>
         ))}

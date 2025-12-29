@@ -15,10 +15,10 @@ import { Image } from "react-native";
 
 const DriverDashboard = () => {
   // ===== STATES =====
-  const [isOnline, setIsOnline] = useState(true);
-  const [gpsActive, setGpsActive] = useState(true);
-  const [seconds, setSeconds] = useState(0);
-  const [sessions, setSessions] = useState(12);
+  const [isOnline, setIsOnline] = useState(false);
+  const [gpsActive, setGpsActive] = useState(false);
+  const [seconds, setSeconds] = useState();
+  const [sessions, setSessions] = useState(1);
 
   // ===== TIMER LOGIC =====
   useEffect(() => {

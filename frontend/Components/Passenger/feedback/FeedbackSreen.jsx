@@ -8,12 +8,16 @@ import {
   Animated,
   Alert,
 } from 'react-native';
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 export default function FeedbackScreen() {
+  const navigation = useNavigation();
+
   const [selectedEmoji, setSelectedEmoji] = useState(null);
   const [accuracy, setAccuracy] = useState('Yes');
   const [feedback, setFeedback] = useState('');
-  const [scaleAnim] = useState(new Animated.Value(1)); // Animation for emoji
+  const [scaleAnim] = useState(new Animated.Value(1));
 
   const emojis = ['😞', '😕', '😐', '🙂', '😁'];
   const emojiColors = ['#FFBABA', '#FFD2A6', '#FFF4A3', '#D6F8C1', '#B3FFB3'];
@@ -49,6 +53,15 @@ export default function FeedbackScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
+      
+      {/* Back Arrow */}
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.canGoBack() && navigation.goBack()}
+      >
+        <Ionicons name="arrow-back" size={26} color="#333" />
+      </TouchableOpacity>
+
       <Text style={styles.title}>Share your feedback</Text>
 
       {/* Emoji Row */}
@@ -120,6 +133,14 @@ const styles = StyleSheet.create({
     padding: 20,
     justifyContent: 'center',
   },
+
+  backButton: {
+    position: "absolute",
+    top: 40,
+    left: 20,
+    zIndex: 10,
+  },
+
   title: {
     fontSize: 22,
     fontWeight: '700',

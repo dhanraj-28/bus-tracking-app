@@ -14,11 +14,16 @@ const STOPS = [
   { name: "Sahnewal", time: "7:55 pm" },
   { name: "Samrala", time: "8:15 pm" },
   { name: "Chandigarh", time: "9:00 pm" },
+  { name: "Mohali", time: "9:20 pm" },
+  { name: "Chandigarh", time: "9:00 pm" },
+  { name: "Mohali", time: "9:20 pm" },
+  { name: "Chandigarh", time: "9:00 pm" },
+  { name: "Mohali", time: "9:20 pm" },
 ];
 
 export default function TrackBusScreen() {
   // 🔑 ONLY THIS VALUE CONTROLS BUS POSITION
-  const [currentStopIndex, setCurrentStopIndex] = useState(2);
+  const [currentStopIndex, setCurrentStopIndex] = useState(3);
 
   const handleRefresh = () => {
     console.log("Refresh pressed");
@@ -33,7 +38,7 @@ export default function TrackBusScreen() {
       <View style={styles.header}>
         <TouchableOpacity>
           <Text style={styles.back}>←</Text>
-        </TouchableOpacity>
+        </TouchableOpacity >
         <Text style={styles.title}>Track Bus</Text>
       </View>
 
