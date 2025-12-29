@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
+import { useRouter } from "expo-router";
 
 // Bus data
 const buses = [
@@ -26,11 +27,13 @@ const buses = [
 // Extract unique places from buses
 const allPlaces = [...new Set(buses.flatMap(bus => [bus.from, bus.to]))];
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [showFromSuggestions, setShowFromSuggestions] = useState(false);
   const [showToSuggestions, setShowToSuggestions] = useState(false);
+
+  const router = useRouter();
 
   // Filter buses based on user input
   const filteredBuses = buses.filter(
@@ -137,7 +140,7 @@ export default function HomeScreen({ navigation }) {
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.card}
-              onPress={() => navigation.navigate("BusDetailScreen", item)}
+              onPress={() => router.push({ pathname: "/trackbus", params: item })}
             >
               <Text style={styles.busNumber}>Bus Number: {item.number}</Text>
               <View style={styles.routeRow}>
