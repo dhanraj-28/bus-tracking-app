@@ -232,3 +232,5 @@ const styles = StyleSheet.create({
   timing: { alignItems: "flex-end" },
   noBusText: { textAlign: "center", marginTop: 50, fontSize: 16, color: "#999" },
 });
+
+
