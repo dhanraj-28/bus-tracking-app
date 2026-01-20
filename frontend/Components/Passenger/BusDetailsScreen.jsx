@@ -15,24 +15,43 @@ export default function BusDetailsScreen({ route, navigation }) {
   return (
     <View style={styles.container}>
 
-      {/* 🔙 Back Arrow */}
-      <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
+      {/* 🔙 Back Arrow → GO TO QR SCANNER */}
+      <Pressable
+        style={styles.backButton}
+        onPress={() => navigation.replace("QRScanner")}
+      >
         <Ionicons name="arrow-back" size={28} color="#000" />
       </Pressable>
 
       <Text style={styles.header}>BUS DETAILS</Text>
 
       <Text style={styles.label}>BUS NAME</Text>
-      <TextInput style={styles.input} value={busData.busName} editable={false} />
+      <TextInput
+        style={styles.input}
+        value={busData.busName}
+        editable={false}
+      />
 
       <Text style={styles.label}>ROUTE DATE</Text>
-      <TextInput style={styles.input} value={busData.routeDate} editable={false} />
+      <TextInput
+        style={styles.input}
+        value={busData.routeDate}
+        editable={false}
+      />
 
       <Text style={styles.label}>ROUTE NUMBER</Text>
-      <TextInput style={styles.input} value={busData.routeNumber} editable={false} />
+      <TextInput
+        style={styles.input}
+        value={busData.routeNumber}
+        editable={false}
+      />
 
       <Text style={styles.label}>ROUTE NAME</Text>
-      <TextInput style={styles.input} value={busData.routeName} editable={false} />
+      <TextInput
+        style={styles.input}
+        value={busData.routeName}
+        editable={false}
+      />
 
       <TouchableOpacity style={styles.button}>
         <Text style={styles.buttonText}>PROCEED</Text>
@@ -41,6 +60,7 @@ export default function BusDetailsScreen({ route, navigation }) {
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -50,7 +70,7 @@ const styles = StyleSheet.create({
 
   backButton: {
     position: "absolute",
-    top: 40,     // adjust for status bar
+    top: 40,
     left: 15,
     zIndex: 10,
   },
@@ -60,7 +80,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 30,
-    marginTop: 20, // prevent overlap with back arrow
+    marginTop: 20,
   },
 
   label: {

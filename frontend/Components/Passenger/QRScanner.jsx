@@ -13,7 +13,7 @@ import { Ionicons } from "@expo/vector-icons";
 
 export default function QRScanner({ navigation }) {
 
-  // 🔥 WEB HANDLING
+  // 🚫 WEB HANDLING
   if (Platform.OS === "web") {
     return (
       <View style={styles.webContainer}>
@@ -28,7 +28,10 @@ export default function QRScanner({ navigation }) {
   const [scanned, setScanned] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
 
+  // ✅ HANDLE QR SCAN
   const handleScan = ({ data }) => {
+    if (scanned) return; // prevent double scan
+
     setScanned(true);
     setIsScanning(false);
 
@@ -43,7 +46,9 @@ export default function QRScanner({ navigation }) {
     }
   };
 
-  if (!permission) return <Text>Checking camera permission...</Text>;
+  if (!permission) {
+    return <Text>Checking camera permission...</Text>;
+  }
 
   if (!permission.granted) {
     return (
@@ -62,32 +67,54 @@ export default function QRScanner({ navigation }) {
   return (
     <View style={styles.container}>
 
-      {/* 🔙 HEADER WITH BACK ARROW */}
+      {/* 🔙 BACK BUTTON (RESETS SCANNER) */}
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()}>
+        <Pressable
+          onPress={() => {
+            setScanned(false);
+            setIsScanning(false);
+          }}
+        >
           <Ionicons name="arrow-back" size={28} color="#000" />
         </Pressable>
 
-                 <Text style={styles.title}>         SCAN QR CODE</Text>
+        <Text style={styles.title}>SCAN QR CODE</Text>
       </View>
 
+      {/* 📷 CAMERA FRAME */}
       <View style={styles.qrFrame}>
         {isScanning && (
           <CameraView
             style={StyleSheet.absoluteFillObject}
             facing="back"
             onBarcodeScanned={!scanned ? handleScan : undefined}
-            barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+            barcodeScannerSettings={{
+              barcodeTypes: ["qr"],
+            }}
           />
         )}
       </View>
 
+      {/* ▶ START SCAN BUTTON */}
       {!isScanning && !scanned && (
         <TouchableOpacity
           style={styles.button}
           onPress={() => setIsScanning(true)}
         >
           <Text style={styles.buttonText}>START SCAN</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* 🔄 SCAN AGAIN BUTTON */}
+      {scanned && (
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            setScanned(false);
+            setIsScanning(false);
+          }}
+        >
+          <Text style={styles.buttonText}>SCAN AGAIN</Text>
         </TouchableOpacity>
       )}
     </View>
@@ -119,7 +146,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "#2C2C7C",
-    marginLeft: 12,
+    marginLeft: 20,
   },
 
   permissionContainer: {

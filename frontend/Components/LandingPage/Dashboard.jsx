@@ -7,23 +7,28 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 export default function  DashBoard() {
   const buttons = [
     { title: "Track bus", icon: "bus", color: "#5E60CE" },
-    { title: "Find bus route", icon: "map-outline", color: "#5E60CE" },
+    { title: "Find bus route", icon: "map", color: "#5E60CE" },
     { title: "Bus pass", icon: "clipboard-list", color: "#5E60CE" },
-    { title: "Bus stop near me", icon: "bus-stop", color: "#5E60CE" },
+    { title: "Bus stop near me", icon: "location-arrow", color: "#5E60CE" },
     { title: "Feedback & Rating", icon: "headset", color: "#5E60CE" },
   ];
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>Where is my bus?</Text>
+     <View style={styles.headerRow}>
+        <TouchableOpacity>
+          <FontAwesome5 name="bars" size={24} color="#000" />
+        </TouchableOpacity>
+
+        <Text style={styles.header}>Where is my bus?</Text>
+      </View>
 
       <View style={styles.grid}>
         {buttons.map((btn, index) => (
           <TouchableOpacity key={index} style={styles.card} activeOpacity={0.8}>
             {/* You can customize icons as per need */}
             <FontAwesome5 name={btn.icon} size={30} color="white" />
-            <Ionicons name={btn.icon} size={30} color="white" />
-             <MaterialIcons name={btn.icon} size={30} color="white" />
+     
             <Text style={styles.label}>{btn.title}</Text>
           </TouchableOpacity>
         ))}
@@ -34,19 +39,31 @@ export default function  DashBoard() {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    paddingTop: 80,
+    padding: 60,
+    paddingTop: 40,
     
     backgroundColor: "#f9f9f9",
     flexGrow: 1,
     
   },
-  header: {
-    fontSize: 22,
-    fontWeight: "700",
-    marginVertical: 20,
-    paddingBottom :40
-  },
+  headerRow: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "flex-start",
+  gap: 15,
+  marginBottom: 30,
+},
+
+header: {
+  fontSize: 22,
+  fontWeight: "700",
+  lineHeight: 26, // keeps text vertically centered
+  marginLeft: -5 , // more left
+  marginRight: 8
+
+
+},
+
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
