@@ -28,6 +28,7 @@ import App3 from "./Components/Passenger/App3";
 
 import Feedbackroute from "./Components/Passenger/feedback/feedbackroute";
 import PasstoPayment from "./Components/Passenger/passtopayment";
+import BusStopsNearMe from "./Components/Passenger/BusStopsNearMe";
 
 export default function App() {
   return (
@@ -53,7 +54,8 @@ export default function App() {
       {/* <RewardProgressPage/> */}
         {/* <DriverDashboard /> */}
         {/* <DashBoard /> */}
-    <RegisterForm/>
+    {/* <RegisterForm/> */}
+    <BusStopsNearMe />
       </SafeAreaView>
     </SafeAreaProvider>
   );
