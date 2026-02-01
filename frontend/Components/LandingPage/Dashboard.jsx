@@ -3,8 +3,11 @@ import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-nati
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useNavigation } from "@react-navigation/native";
+
 
 export default function  DashBoard() {
+   const navigation = useNavigation();
   const buttons = [
     { title: "Track bus", icon: "bus", color: "#5E60CE" },
     { title: "Find bus route", icon: "map", color: "#5E60CE" },
@@ -15,7 +18,21 @@ export default function  DashBoard() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>Where is my bus?</Text>
+      <View style={styles.headerContainer}>
+  {/* Back Arrow */}
+  <TouchableOpacity onPress={() => navigation.navigate("Landing")}>
+    <Ionicons name="arrow-back" size={26} color="#000" />
+  </TouchableOpacity>
+
+  {/* Title */}
+  <Text style={styles.headerTitle}>Where is my bus?</Text>
+
+  {/* Menu Button */}
+  <TouchableOpacity onPress={() => console.log("Menu clicked")}>
+    <Ionicons name="menu" size={28} color="#000" />
+  </TouchableOpacity>
+</View>
+
 
       <View style={styles.grid}>
         {buttons.map((btn, index) => (
@@ -74,4 +91,16 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 8,
   },
+  headerContainer: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginBottom: 40,
+},
+
+headerTitle: {
+  fontSize: 22,
+  fontWeight: "700",
+},
+
 });

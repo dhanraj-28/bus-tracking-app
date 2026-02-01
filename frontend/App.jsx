@@ -59,10 +59,12 @@ export default function App() {
         {/* <DashBoard /> */}
     {/* <RegisterForm/> */}
      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen
+        {/* <Stack.Screen
           name="BusStopsNearMe"
           component={BusStopsNearMe}
-        />
+        /> */}
+          <Stack.Screen name="Landing" component={Landing} />
+  <Stack.Screen name="Dashboard" component={DashBoard} />
 
         {/* add other screens later */}
       </Stack.Navigator>

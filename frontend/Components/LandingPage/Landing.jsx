@@ -11,12 +11,15 @@ import {
 } from "react-native";
 import MaskedView from "@react-native-masked-view/masked-view";
 import { LinearGradient } from "expo-linear-gradient";
+import { useNavigation } from "@react-navigation/native";
+
 
 
 
 const { width } = Dimensions.get("window");
 
 const Landing = () => {
+  const navigation = useNavigation();
   return (
     <SafeAreaView style={styles.container}>
       {/* Illustration */}
@@ -55,7 +58,11 @@ const Landing = () => {
 
       {/* Buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity activeOpacity={0.8}>
+        <TouchableOpacity
+  activeOpacity={0.8}
+  onPress={() => navigation.navigate("Dashboard")}
+>
+
           <LinearGradient
             colors={["#211C84", "#7770CE"]}
             start={{ x: 0, y: 1}}
