@@ -1,4 +1,6 @@
 import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaView, StatusBar, StyleSheet } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import DriverDashboard from "./Components/Driver/DriverDashboard";
@@ -29,10 +31,11 @@ import App3 from "./Components/Passenger/App3";
 import Feedbackroute from "./Components/Passenger/feedback/feedbackroute";
 import PasstoPayment from "./Components/Passenger/passtopayment";
 import BusStopsNearMe from "./Components/Passenger/BusStopsNearMe";
-
+const Stack = createNativeStackNavigator();
 export default function App() {
   return (
     <SafeAreaProvider>
+       <NavigationContainer>
       <SafeAreaView style={styles.safe}>
         <StatusBar barStyle="dark-content" backgroundColor="#fff" />
         {/* <App3/> */}
@@ -55,8 +58,16 @@ export default function App() {
         {/* <DriverDashboard /> */}
         {/* <DashBoard /> */}
     {/* <RegisterForm/> */}
-    <BusStopsNearMe />
+     <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen
+          name="BusStopsNearMe"
+          component={BusStopsNearMe}
+        />
+
+        {/* add other screens later */}
+      </Stack.Navigator>
       </SafeAreaView>
+      </NavigationContainer>
     </SafeAreaProvider>
   );
 }

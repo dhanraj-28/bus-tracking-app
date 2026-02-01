@@ -8,7 +8,9 @@ import {
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
-
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import { TouchableOpacity } from "react-native";
 /* ---------------- DISTANCE FUNCTION ---------------- */
 const getDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371;
@@ -25,6 +27,7 @@ const getDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 export default function BusStopsNearMe() {
+  const navigation = useNavigation();
   const [location, setLocation] = useState(null);
   const [nearbyStops, setNearbyStops] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -94,7 +97,13 @@ export default function BusStopsNearMe() {
 
       {/* LIST */}
       <View style={styles.list}>
-        <Text style={styles.heading}>Nearby Bus Stops</Text>
+        <View style={styles.header}>
+  <TouchableOpacity onPress={() => navigation.goBack()}>
+    <Ionicons name="arrow-back" size={24} color="#000" />
+  </TouchableOpacity>
+
+  <Text style={styles.heading}>Nearby Bus Stops</Text>
+</View>
 
         <FlatList
           data={nearbyStops}
@@ -176,4 +185,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  header: {
+  flexDirection: "row",
+  alignItems: "center",
+  marginBottom: 12,
+},
+heading: {
+  fontSize: 20,
+  fontWeight: "bold",
+  marginLeft: 10, // space between icon & text
+},
+
 });
