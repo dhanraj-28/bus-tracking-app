@@ -73,7 +73,22 @@ const BuyBusPassScreen = ({ navigation }) => {
     showsVerticalScrollIndicator={false}
   >
     <View style={styles.container}>
-      
+      {/* Header */}
+{/* Header */}
+<View style={styles.headerRow}>
+  <View style={styles.headerLeft}>
+    <TouchableOpacity onPress={() => navigation.goBack()}>
+      <MaterialIcons name="arrow-back" size={26} color="#000" />
+    </TouchableOpacity>
+  </View>
+
+  <View style={styles.headerCenter}>
+    <Text style={styles.headerTitle}>Buy Bus Pass</Text>
+  </View>
+
+  <View style={styles.headerRight} />
+</View>
+
 
       {/* Time Period */}
       <View style={styles.card}>
@@ -281,6 +296,41 @@ const styles = StyleSheet.create({
     marginTop: 30,
     marginBottom: 10,
   },
+  headerRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: 20,
+  marginTop: 11,
+},
+
+headerTitle: {
+  fontSize: 18,
+  fontWeight: '600',
+  marginTop: 16,
+},
+headerRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  height: 48,
+  marginBottom: 16,
+},
+
+headerLeft: {
+  width: 40,
+  justifyContent: 'center',
+  alignItems: 'flex-start',
+},
+
+headerCenter: {
+  flex: 1,
+  alignItems: 'center',
+},
+
+headerRight: {
+  width: 40,
+},
+
   nextText: {
     color: '#fff',
     fontWeight: '600',

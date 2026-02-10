@@ -28,7 +28,7 @@ export default function  DashBoard() {
   <Text style={styles.headerTitle}>Where is my bus?</Text>
 
   {/* Menu Button */}
-  <TouchableOpacity onPress={() => console.log("Menu clicked")}>
+  <TouchableOpacity onPress={() => navigation.navigate("MenuScreen")}>
     <Ionicons name="menu" size={28} color="#000" />
   </TouchableOpacity>
 </View>
@@ -36,13 +36,32 @@ export default function  DashBoard() {
 
       <View style={styles.grid}>
         {buttons.map((btn, index) => (
-          <TouchableOpacity key={index} style={styles.card} activeOpacity={0.8}>
+          <TouchableOpacity key={index} style={styles.card} activeOpacity={0.8}
+  onPress={() => {
+    if (btn.title === "Find bus route") {
+      navigation.navigate("Trackbus");
+    }
+    else if (btn.title === "Bus stop near me") {
+      navigation.navigate("BusStopsNearMe");
+    }
+  else if (btn.title === "Bus pass") {
+      navigation.navigate("BusPassForm");
+    }
+    else if (btn.title === "Feedback & Rating") {
+      navigation.navigate("FeedbackScreen");
+    }
+  
+  }}
+>
+ 
+
             {/* You can customize icons as per need */}
             <FontAwesome5 name={btn.icon} size={30} color="white" />
             
              
             <Text style={styles.label}>{btn.title}</Text>
-          </TouchableOpacity>
+            </TouchableOpacity>
+         
         ))}
       </View>
     </ScrollView>

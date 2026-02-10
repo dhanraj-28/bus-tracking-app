@@ -21,7 +21,7 @@ const STOPS = [
   { name: "Mohali", time: "9:20 pm" },
 ];
 
-export default function TrackBusScreen() {
+export default function LiveTrack() {
   // 🔑 ONLY THIS VALUE CONTROLS BUS POSITION
   const [currentStopIndex, setCurrentStopIndex] = useState(3);
 

@@ -17,7 +17,7 @@ import LogoutScreen from "./Components/Passenger/Menu/LogoutScreen";
 import App1 from "./Components/Passenger/Menu/App1";
 import BusDetailsScreen from "./Components/Driver/qrscanner/BusDetailsScreen";
 import QRScanner from "./Components/Driver/qrscanner/QRScanner";
-import TrackBusScreen from "./Components/Passenger/TrackBusScreen";
+import TrackBusScreen from "./Components/Passenger/LiveTrack";
 import App2 from "./Components/Driver/qrscanner/App2";
 import BuyBusPassScreen from "./Components/Passenger/BuyBusPassScreen";
 import NotificationsPage from "./Components/Passenger/Notification";
@@ -31,6 +31,7 @@ import App3 from "./Components/Passenger/App3";
 import Feedbackroute from "./Components/Passenger/feedback/feedbackroute";
 import PasstoPayment from "./Components/Passenger/passtopayment";
 import BusStopsNearMe from "./Components/Passenger/BusStopsNearMe";
+import TrackSearch from "./Components/Passenger/TrackSearch";
 const Stack = createNativeStackNavigator();
 export default function App() {
   return (
@@ -63,9 +64,15 @@ export default function App() {
           name="BusStopsNearMe"
           component={BusStopsNearMe}
         /> */}
-          <Stack.Screen name="Landing" component={Landing} />
+           <Stack.Screen name="Landing" component={Landing} />
   <Stack.Screen name="Dashboard" component={DashBoard} />
-
+   <Stack.Screen name="Trackbus" component={HomeScreen} />
+  <Stack.Screen name="BusStopsNearMe" component={BusStopsNearMe} /> 
+   <Stack.Screen name="BuyBusPass" component={BuyBusPassScreen} /> 
+  <Stack.Screen name="BusPassForm" component={BusPassForm} />
+<Stack.Screen name="FeedbackScreen" component={FeedbackScreen} />
+<Stack.Screen name="MenuScreen" component={MenuScreen} />
+{/* <Stack.Screen name="TrackSearch" component={TrackSearch} /> */}
         {/* add other screens later */}
       </Stack.Navigator>
       </SafeAreaView>
