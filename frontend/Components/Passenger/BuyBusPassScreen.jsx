@@ -10,8 +10,10 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from "@react-navigation/native";
 
-const BuyBusPassScreen = ({ navigation }) => {
+const BuyBusPassScreen = () => {
+    const navigation = useNavigation();
   const [timePeriod, setTimePeriod] = useState('1 DAY');
   const [passType, setPassType] = useState('Student');
   const [startDate, setStartDate] = useState(new Date());
@@ -170,7 +172,7 @@ const BuyBusPassScreen = ({ navigation }) => {
       <TouchableOpacity
         style={styles.nextButton}
         onPress={() =>
-          navigation.navigate('Payment', {
+          navigation.navigate('IdentityVerification', {
             timePeriod,
             passType,
             startDate: startDate.toISOString(),

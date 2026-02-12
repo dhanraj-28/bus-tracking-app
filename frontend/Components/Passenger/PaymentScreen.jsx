@@ -10,9 +10,11 @@ import {
   Image,
   Alert,
 } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from "@react-navigation/native";
 
-
-const PaymentScreen = ({ navigation }) => {
+const PaymentScreen = () => {
+   const navigation = useNavigation();
   const [method, setMethod] = useState('card'); // card | upi
   const [cardType, setCardType] = useState('debit'); // credit | debit
   const [selectedCard, setSelectedCard] = useState(null);
@@ -70,12 +72,23 @@ const PaymentScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <Text style={styles.title}>Payment</Text>
+        <View style={styles.headerRow}>
+        <View style={styles.headerLeft}>
 
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+      <MaterialIcons style={styles.backIcon} name="arrow-back" size={26} color="#000" />
+    </TouchableOpacity>
+    </View>
+    <View style={styles.headerCenter}>
+    <Text style={styles.title}>Payment</Text>
+    </View>
+</View>
+       
         {/* MAIN METHOD */}
         <Text style={styles.sectionTitle}>Choose Payment Method</Text>
 
@@ -179,20 +192,31 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-  },
 
+  },
+  headerRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  marginBottom: 20,
+  marginTop: 11,
+},
   scrollContent: {
     padding: 20,
     paddingBottom: 180, // IMPORTANT → space for button
   },
 
   title: {
-    fontSize: 26,
-    fontWeight: '700',
-    marginTop: 5,
-    marginBottom: 20,
+    fontSize: 18,
+  fontWeight: '600',
+  marginTop: 16,
+  
   },
-
+headerLeft: {
+  width: 40,
+  justifyContent: 'center',
+  alignItems: 'flex-start',
+},
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',

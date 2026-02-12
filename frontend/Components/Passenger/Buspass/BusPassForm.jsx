@@ -63,7 +63,7 @@ export default function BusPassForm() {
       Alert.alert("Please fill all required fields");
       return;
     }
-    Alert.alert("Proceed to next step");
+    navigation.navigate("BuyBusPassScreen", { formData: form, photo: image });
   };
 
   return (

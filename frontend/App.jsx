@@ -64,7 +64,7 @@ export default function App() {
           name="BusStopsNearMe"
           component={BusStopsNearMe}
         /> */}
-           <Stack.Screen name="Landing" component={Landing} />
+           {/* <Stack.Screen name="Landing" component={Landing} />
   <Stack.Screen name="Dashboard" component={DashBoard} />
    <Stack.Screen name="Trackbus" component={HomeScreen} />
   <Stack.Screen name="BusStopsNearMe" component={BusStopsNearMe} /> 
@@ -72,7 +72,10 @@ export default function App() {
   <Stack.Screen name="BusPassForm" component={BusPassForm} />
 <Stack.Screen name="FeedbackScreen" component={FeedbackScreen} />
 <Stack.Screen name="MenuScreen" component={MenuScreen} />
-{/* <Stack.Screen name="TrackSearch" component={TrackSearch} /> */}
+<Stack.Screen name="TrackSearch" component={TrackSearch} />
+<Stack.Screen name="IdentityVerification" component={IdentityVerification} />
+<Stack.Screen name="BuyBusPassScreen" component={BuyBusPassScreen} /> */}
+<Stack.Screen name="PaymentScreen" component={PaymentScreen} />
         {/* add other screens later */}
       </Stack.Navigator>
       </SafeAreaView>

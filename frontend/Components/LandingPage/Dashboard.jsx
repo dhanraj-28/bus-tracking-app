@@ -50,7 +50,9 @@ export default function  DashBoard() {
     else if (btn.title === "Feedback & Rating") {
       navigation.navigate("FeedbackScreen");
     }
-  
+  else if(btn.title === "Track bus") {
+      navigation.navigate("TrackSearch");
+    }
   }}
 >
  

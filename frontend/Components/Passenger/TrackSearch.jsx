@@ -9,6 +9,8 @@ import {
   SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+
 
 const BusData = [
   { id: "1", busNumber: "5E", routeName: "Avadi", destination: "Adayar", time: "8:10 AM" },
@@ -19,6 +21,7 @@ const BusData = [
 ];
 
 const TrackSearch = () => {
+  const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredBuses, setFilteredBuses] = useState(BusData);
 
@@ -52,8 +55,8 @@ const TrackSearch = () => {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity>
-          <Ionicons name="arrow-back" size={25} color="#000" />
+    <TouchableOpacity onPress={() => navigation.navigate("Dashboard")}>
+          <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerText}>Track Bus</Text>
       </View>
