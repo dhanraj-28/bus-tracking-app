@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import LiveBarTrack from "./LiveBarTrack";
-
+import { useNavigation } from "@react-navigation/native";
 const STOPS = [
   { name: "Ludhiana", time: "7:40 pm" },
   { name: "Sahnewal", time: "7:55 pm" },
@@ -21,8 +21,9 @@ const STOPS = [
   { name: "Mohali", time: "9:20 pm" },
 ];
 
-export default function TrackBusScreen() {
+export default function LiveTrack() {
   // 🔑 ONLY THIS VALUE CONTROLS BUS POSITION
+    const navigation = useNavigation();
   const [currentStopIndex, setCurrentStopIndex] = useState(3);
 
   const handleRefresh = () => {
@@ -36,9 +37,9 @@ export default function TrackBusScreen() {
 
       {/* HEADER */}
       <View style={styles.header}>
-        <TouchableOpacity>
-          <Text style={styles.back}>←</Text>
-        </TouchableOpacity >
+     <TouchableOpacity onPress={() => navigation.goBack()}>
+  <Text style={styles.back}>←</Text>
+</TouchableOpacity>
         <Text style={styles.title}>Track Bus</Text>
       </View>
 

@@ -98,7 +98,8 @@ export default function BusStopsNearMe() {
       {/* LIST */}
       <View style={styles.list}>
         <View style={styles.header}>
-  <TouchableOpacity onPress={() => navigation.goBack()}>
+ <TouchableOpacity onPress={() => navigation.navigate("Dashboard")}>
+
     <Ionicons name="arrow-back" size={24} color="#000" />
   </TouchableOpacity>
 

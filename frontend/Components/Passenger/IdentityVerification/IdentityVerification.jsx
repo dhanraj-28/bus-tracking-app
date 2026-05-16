@@ -14,6 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function IdentityVerification() {
+  const navigation = useNavigation();
   const [selectedDoc, setSelectedDoc] = useState("");
   const [value, setValue] = useState("");
   const [file, setFile] = useState(null);
@@ -51,7 +52,7 @@ export default function IdentityVerification() {
       alert("Please fill all fields and upload proof");
       return;
     }
-    alert("Pass Applied Successfully!");
+ navigation.navigate("PaymentScreen", { formData: selectedDoc, photo: file });
   };
 
   return (

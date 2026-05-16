@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 const ITEM_HEIGHT = 100; // space per stop
 
@@ -18,6 +19,7 @@ export default function LiveBarTrack({
 }) {
   const busY = useRef(new Animated.Value(0)).current;
   const scrollRef = useRef(null);
+const navigation = useNavigation();
 
   useEffect(() => {
     const targetY = currentStopIndex * ITEM_HEIGHT + 30;
@@ -90,14 +92,19 @@ export default function LiveBarTrack({
         </View>
 
         {/* RIGHT BUTTONS */}
-        <View style={styles.statusRight}>
-          <TouchableOpacity style={styles.liveBtn}>
-            <Text style={styles.liveText}>LIVE MAP</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.refresh} onPress={onRefresh}>
-            <Text style={styles.refreshText}>⟳</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.statusRight}>
+  <TouchableOpacity
+    style={styles.liveBtn}
+    onPress={() => navigation.navigate("Tracking")}
+  >
+    <Text style={styles.liveText}>LIVE MAP</Text>
+  </TouchableOpacity>
+
+  <TouchableOpacity style={styles.refresh} onPress={onRefresh}>
+    <Text style={styles.refreshText}>⟳</Text>
+  </TouchableOpacity>
+</View>
+
       </View>
     </View>
   );

@@ -18,6 +18,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function BusPassForm() {
+  const navigation = useNavigation();
   const [image, setImage] = useState(null);
   const [form, setForm] = useState({
     name: "",
@@ -62,7 +63,7 @@ export default function BusPassForm() {
       Alert.alert("Please fill all required fields");
       return;
     }
-    Alert.alert("Proceed to next step");
+    navigation.navigate("BuyBusPassScreen", { formData: form, photo: image });
   };
 
   return (
@@ -70,7 +71,7 @@ export default function BusPassForm() {
 
       {/* 🔙 Back Arrow + Title (same position as other screens) */}
       <View style={styles.headerRow}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.navigate("Dashboard")}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Bus Pass</Text>

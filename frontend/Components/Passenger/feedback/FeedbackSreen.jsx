@@ -57,7 +57,7 @@ export default function FeedbackScreen() {
       {/* Back Arrow */}
       <TouchableOpacity
         style={styles.backButton}
-        onPress={() => navigation.canGoBack() && navigation.goBack()}
+        onPress={() => navigation.canGoBack() && navigation.navigate("Dashboard")}
       >
         <Ionicons name="arrow-back" size={26} color="#333" />
       </TouchableOpacity>

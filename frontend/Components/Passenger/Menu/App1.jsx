@@ -7,6 +7,7 @@ import MenuScreen from "./MenuScreen";
 import ChangeLanguageScreen from "./ChangeLanguageScreen";
 import LogoutScreen from "./LogoutScreen";
 import { LanguageProvider } from "../../../context/LanguageContext";
+import DashBoard from "../../LandingPage/Dashboard";
 
 
 const Stack = createNativeStackNavigator();
@@ -17,8 +18,10 @@ export default function App1() {
     <LanguageProvider>
       <NavigationContainer>
         
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Menu" component={MenuScreen} />
+        <Stack.Navigator  initialRouteName="MenuScreen">
+           
+
+          <Stack.Screen name="MenuScreen" component={MenuScreen} />
           <Stack.Screen name="ChangeLanguageScreen" component={ChangeLanguageScreen} />
           <Stack.Screen name="LogoutScreen" component={LogoutScreen} />
         </Stack.Navigator>

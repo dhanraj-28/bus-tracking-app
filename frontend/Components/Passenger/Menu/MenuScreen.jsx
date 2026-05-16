@@ -42,16 +42,19 @@ export default function MenuScreen({ navigation }) {
         <MenuItem
           icon={<FontAwesome5 name="exclamation-circle" size={22} />}
           label={t.sos}
+          onPress={() => navigation.navigate("SOSScreen")}
         />
 
         <MenuItem
           icon={<Ionicons name="notifications-outline" size={22} />}
           label={t.notification}
+          onPress={() => navigation.navigate("NotificationScreen")}
         />
 
         <MenuItem
           icon={<FontAwesome5 name="paypal" size={22} />}
           label={t.payments}
+          onPress={() => navigation.navigate("PaymentScreen")}
         />
 
         <MenuItem

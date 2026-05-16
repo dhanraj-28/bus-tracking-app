@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView ,StyleSheet,} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-
+import { useNavigation } from "@react-navigation/native";
+import { MaterialIcons } from '@expo/vector-icons';
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
+  const navigation = useNavigation();
 
   // Simulating API notification fetch
   useEffect(() => {
@@ -52,7 +54,9 @@ export default function NotificationsPage() {
           marginBottom: 10,
         }}
       >
-        <Ionicons name="arrow-back" size={26} />
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+      <MaterialIcons style={styles.backIcon} name="arrow-back" size={26} color="#000" />
+    </TouchableOpacity>
         <Text
           style={{
             fontSize: 22,
@@ -119,3 +123,11 @@ export default function NotificationsPage() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  backArrow: {
+    fontSize: 40,
+    marginRight: 10,
+    fontWeight: "600"
+  },
+});
