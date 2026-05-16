@@ -53,9 +53,13 @@ export default function BusDetailsScreen({ route, navigation }) {
         editable={false}
       />
 
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>PROCEED</Text>
-      </TouchableOpacity>
+    <TouchableOpacity
+  style={styles.button}
+  onPress={() => navigation.navigate("DriverDashboard")}
+>
+  <Text style={styles.buttonText}>PROCEED</Text>
+</TouchableOpacity>
+
 
     </View>
   );

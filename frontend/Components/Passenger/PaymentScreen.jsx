@@ -197,25 +197,28 @@ const styles = StyleSheet.create({
   headerRow: {
   flexDirection: 'row',
   alignItems: 'center',
-  justifyContent: 'space-between',
   marginBottom: 20,
   marginTop: 11,
+},
+headerCenter: {
+  flex: 2,
+  alignItems: 'flex-start',
+  marginTop: 12,
+  
 },
   scrollContent: {
     padding: 20,
     paddingBottom: 180, // IMPORTANT → space for button
   },
-
-  title: {
-    fontSize: 18,
+title: {
+  fontSize: 20,
   fontWeight: '600',
-  marginTop: 16,
-  
-  },
+},
 headerLeft: {
   width: 40,
   justifyContent: 'center',
   alignItems: 'flex-start',
+   marginTop: 12,
 },
   sectionTitle: {
     fontSize: 18,

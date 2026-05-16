@@ -9,12 +9,13 @@ import {
   StatusBar
 } from "react-native";
 import { Image } from "react-native";
-
-
+import { useNavigation } from "@react-navigation/native";
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 
 const DriverDashboard = () => {
   // ===== STATES =====
+    const navigation = useNavigation();
   const [isOnline, setIsOnline] = useState(false);
   const [gpsActive, setGpsActive] = useState(false);
   const [seconds, setSeconds] = useState();
@@ -47,7 +48,9 @@ const DriverDashboard = () => {
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
       {/* HEADER */}
       <View style={styles.header}>
-        <Text style={styles.backArrow}>←</Text>
+      <TouchableOpacity onPress={() => navigation.navigate("QRScanner")}>
+          <Ionicons name="arrow-back" size={24} color="#000" />
+        </TouchableOpacity>
         <Text style={styles.title}>DASHBOARD</Text>
 
         <View style={styles.onlineWrapper}>
@@ -126,9 +129,13 @@ const DriverDashboard = () => {
       </View>
 
       {/* VIEW POINTS BUTTON */}
-      <TouchableOpacity style={styles.pointsBtn}>
-        <Text style={styles.pointsText}>VIEW POINTS</Text>
-      </TouchableOpacity>
+   <TouchableOpacity 
+  style={styles.pointsBtn}
+  onPress={() => navigation.navigate("Reward")}
+>
+  <Text style={styles.pointsText}>VIEW POINTS</Text>
+</TouchableOpacity>
+
     </SafeAreaView>
   );
 };
@@ -146,13 +153,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginTop: 50,
-  },
-
-  backArrow: {
-    fontSize: 42,
     right:10,
     marginBottom:15
   },
+
+ 
 
   title: {
     fontSize: 25,

@@ -13,7 +13,7 @@ export default function LogoutScreen({ navigation }) {
       [
         {
           text: "OK",
-          onPress: () => navigation.replace("Menu"),
+          onPress: () => navigation.replace("Landing"),
         },
       ]
     );

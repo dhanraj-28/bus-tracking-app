@@ -35,22 +35,34 @@ const TrackSearch = () => {
     setFilteredBuses(filtered);
   };
 
-  const renderBusCard = ({ item }) => (
-    <View style={styles.card}>
-      <Ionicons name="bus-outline" size={26} color="#6A5ACD" style={{ marginRight: 10 }} />
+const renderBusCard = ({ item }) => (
+  <TouchableOpacity
+    style={styles.card}
+    activeOpacity={0.8}
+    onPress={() => navigation.navigate("LiveTrack", { bus: item })}
+  >
+    <Ionicons
+      name="bus-outline"
+      size={26}
+      color="#6A5ACD"
+      style={{ marginRight: 10 }}
+    />
 
-      <View style={styles.middleSection}>
-        <Text style={styles.busNumber}>{item.busNumber}</Text>
-        <Text style={styles.routeName}>
-          {item.routeName} ➜ {item.destination}
-        </Text>
-        <Text style={styles.time}>{item.time}</Text>
-      </View>
-
-      <Ionicons name="bus-outline" size={26} color="#6A5ACD" />
+    <View style={styles.middleSection}>
+      <Text style={styles.busNumber}>{item.busNumber}</Text>
+      <Text style={styles.routeName}>
+        {item.routeName} ➜ {item.destination}
+      </Text>
+      <Text style={styles.time}>{item.time}</Text>
     </View>
-  );
 
+    <Ionicons
+      name="chevron-forward"
+      size={22}
+      color="#6A5ACD"
+    />
+  </TouchableOpacity>
+);
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}

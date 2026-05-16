@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, ScrollView, TouchableOpacity, BackHandler } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-
+import { useNavigation } from "@react-navigation/native";
 export default function RewardProgressPage() {
-  
+  const navigation = useNavigation();
   const driverName = "Driver Name";
   const isOnline = true;
 
@@ -32,10 +32,7 @@ export default function RewardProgressPage() {
           marginTop: 40,
         }}
       >
-        <TouchableOpacity
-          onPress={handleBack}
-          style={{ paddingRight: 0 }}
-        >
+      <TouchableOpacity onPress={() => navigation.navigate("DriverDashboard")}>
           <Ionicons name="arrow-back-outline" size={30} color="#301ad4" />
         </TouchableOpacity>
 

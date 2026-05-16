@@ -60,7 +60,7 @@ const Landing = () => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity
   activeOpacity={0.8}
-  onPress={() => navigation.navigate("Dashboard")}
+  onPress={() => navigation.navigate("MobileOTP")}
 >
 
           <LinearGradient
@@ -73,7 +73,10 @@ const Landing = () => {
           </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity activeOpacity={0.8}>
+        <TouchableOpacity
+  activeOpacity={0.8}
+  onPress={() => navigation.navigate("RegisterForm")}
+>
           <LinearGradient
             colors={["#211C84", "#7770CE"]}
             start={{ x: 0, y: 1}}

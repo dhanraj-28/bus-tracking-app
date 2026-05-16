@@ -153,7 +153,7 @@ export default function HomeScreen() {
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.card}
-              onPress={() => router.push({ pathname: "/trackbus", params: item })}
+              onPress={() => navigation.navigate("LiveTrack", { bus: item })}
             >
               <Text style={styles.busNumber}>Bus Number: {item.number}</Text>
               <View style={styles.routeRow}>

@@ -18,12 +18,12 @@ export default function App1() {
     <LanguageProvider>
       <NavigationContainer>
         
-        <Stack.Navigator screenOptions={{ headerShown: false }}>
-           {/* <Stack.Screen name="Dashboard" component={DashBoard} /> */}
+        <Stack.Navigator  initialRouteName="MenuScreen">
+           
 
-          {/* <Stack.Screen name="MenuScreen" component={MenuScreen} /> */}
-          {/* <Stack.Screen name="ChangeLanguageScreen" component={ChangeLanguageScreen} />
-          <Stack.Screen name="LogoutScreen" component={LogoutScreen} /> */}
+          <Stack.Screen name="MenuScreen" component={MenuScreen} />
+          <Stack.Screen name="ChangeLanguageScreen" component={ChangeLanguageScreen} />
+          <Stack.Screen name="LogoutScreen" component={LogoutScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </LanguageProvider>

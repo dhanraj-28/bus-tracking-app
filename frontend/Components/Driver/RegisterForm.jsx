@@ -5,6 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 
 export default function RegisterForm() {
+  const navigation = useNavigation();
   const [form, setForm] = useState({
     name: "",
     uid: "",
@@ -18,7 +19,9 @@ export default function RegisterForm() {
       alert("Please fill all fields");
       return;
     }
-    alert("Registered Successfully!");
+    else{
+  navigation.navigate("QRScanner", { formData: form });
+    }
   };
 
   return (
@@ -26,7 +29,7 @@ export default function RegisterForm() {
 
       {/* 🔙 Back Arrow + Title */}
       <View style={styles.headerRow}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.navigate("Landing")}>
           <Ionicons name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Register Form</Text>

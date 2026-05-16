@@ -10,9 +10,9 @@ import {
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
-
-export default function QRScanner({ navigation }) {
-
+import { useNavigation } from "@react-navigation/native";
+export default function QRScanner() {
+  const navigation = useNavigation();
   // 🚫 WEB HANDLING
   if (Platform.OS === "web") {
     return (
