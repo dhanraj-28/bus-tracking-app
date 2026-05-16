@@ -114,7 +114,7 @@ export default function PhoneInput() {
 
       {/* Get OTP Button */}
       <TouchableOpacity
-        onPress={sendOTP}
+        onPress={() => navigation.navigate("OTPScreen")}
         style={styles.button}
         disabled={loading}
       >

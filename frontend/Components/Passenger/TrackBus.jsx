@@ -7,7 +7,10 @@ import {
   TouchableOpacity,
   StyleSheet,
 } from "react-native";
-import { useRouter } from "expo-router";
+
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { useNavigation } from "@react-navigation/native";
+
 
 // Bus data
 const buses = [
@@ -33,7 +36,7 @@ export default function HomeScreen() {
   const [showFromSuggestions, setShowFromSuggestions] = useState(false);
   const [showToSuggestions, setShowToSuggestions] = useState(false);
 
-  const router = useRouter();
+  const navigation = useNavigation();
 
   // Filter buses based on user input
   const filteredBuses = buses.filter(
@@ -55,7 +58,17 @@ export default function HomeScreen() {
       
       {/* Header Section */}
       <View style={styles.header}>
-        <Text style={styles.headerText}>Track Bus</Text>
+  {/* Top Header Row */}
+  <View style={styles.topHeader}>
+    <TouchableOpacity onPress={() => navigation.navigate("Dashboard")}>
+      <Ionicons name="arrow-back" size={26} color="#fff" />
+    </TouchableOpacity>
+
+    <Text style={styles.headerText}>Track Bus</Text>
+
+    {/* Empty space to balance layout */}
+    <View style={{ width: 26 }} />
+  </View>
 
         {/* From Input */}
         <View style={{ width: "100%", alignItems: "center" }}>
@@ -140,7 +153,7 @@ export default function HomeScreen() {
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.card}
-              onPress={() => router.push({ pathname: "/trackbus", params: item })}
+              onPress={() => navigation.navigate("LiveTrack", { bus: item })}
             >
               <Text style={styles.busNumber}>Bus Number: {item.number}</Text>
               <View style={styles.routeRow}>
@@ -192,12 +205,12 @@ const styles = StyleSheet.create({
     padding: 30,
     alignItems: "center",
   },
-  headerText: { color: "#fff", fontSize: 22, fontWeight: "bold", marginBottom: 10 },
+  headerText: { color: "#fff", fontSize: 22, fontWeight: "bold",  marginBottom: 6 },
   input: {
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: 8,
-    width: 200,
+    width: 195,
     textAlign: "center",
     fontSize: 16,
     marginVertical: 5,
@@ -218,6 +231,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
   },
+  topHeader: {
+  width: "100%",
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  marginBottom: 15,
+    marginTop: 20,
+},
+
   card: {
     backgroundColor: "#fff",
     margin: 10,

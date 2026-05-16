@@ -88,7 +88,8 @@ export default function App() {
               <Stack.Screen name="LiveTrack" component={LiveTrack} />
               <Stack.Screen name="TacBusScreen" component={LiveTrack} />
               <Stack.Screen name="Tracking" component={LiveMapPage} />
-
+              <Stack.Screen name="SOSScreen" component={SOSScreen} />
+              <Stack.Screen name="NotificationScreen" component={NotificationsPage} />
               <Stack.Screen name="MenuScreen" component={MenuScreen} />
               <Stack.Screen name="ChangeLanguageScreen" component={ChangeLanguageScreen} />
               <Stack.Screen name="LogoutScreen" component={LogoutScreen} />

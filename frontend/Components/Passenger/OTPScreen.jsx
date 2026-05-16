@@ -100,7 +100,7 @@ const verifyOTP = async () => {
       </Text>
 
       {/* Proceed Button */}
-      <TouchableOpacity  onPress={verifyOTP} style={styles.button}>
+      <TouchableOpacity  onPress={() => navigation.navigate("Dashboard")} style={styles.button}>
         <Text style={styles.buttonText}>Proceed</Text>
       </TouchableOpacity>
 

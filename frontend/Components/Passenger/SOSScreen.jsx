@@ -8,17 +8,21 @@ import {
   SafeAreaView,
   StatusBar
 } from "react-native";
-
+import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from "@react-navigation/native";
 const SOSScreen = () => {
   const [message, setMessage] = useState("");
   const [contacts, setContacts] = useState([]);
-
+ const navigation = useNavigation();
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+      
       <View style={styles.header}>
-        <Text style={styles.backArrow}>←</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+      <MaterialIcons style={styles.backIcon} name="arrow-back" size={26} color="#000" />
+    </TouchableOpacity>
         <Text style={styles.headerTitle}>sos</Text>
       </View>
 
