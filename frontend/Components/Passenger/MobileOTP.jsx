@@ -12,8 +12,16 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { FirebaseRecaptchaVerifierModal } from "expo-firebase-recaptcha";
+
+import { useRef } from "react";
+
+import { auth } from "../../src/config/firebase";
+
+import { sendOtpController } from "../../src/controllers/authController";
 
 export default function PhoneInput() {
+  const recaptchaVerifier = useRef(null);
   const navigation = useNavigation();
 
   const [selectedCountry, setSelectedCountry] = useState({
@@ -29,52 +37,60 @@ export default function PhoneInput() {
   const [modalVisible, setModalVisible] = useState(false);
   const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
+const handleSendOtp = async () => {
+  try {
+    setLoading(true);
 
-  const sendOTP = async () => {
-    const cleanPhone = phone.replace(/\D/g, "");
+    const fullPhoneNumber =
+      selectedCountry.code + phone;
 
-    if (!cleanPhone || cleanPhone.length !== 10) {
-      Alert.alert("Error", "Please enter valid 10 digit mobile number");
-      return;
-    }
+    const response = await sendOtpController(
+      fullPhoneNumber,
+      recaptchaVerifier.current
+    );
 
-    const fullPhone = selectedCountry.code + cleanPhone;
+    if (response.success) {
 
-    try {
-      setLoading(true);
+      Alert.alert(
+        "Success",
+        "OTP Sent Successfully"
+      );
 
-      const response = await fetch("http://192.168.1.102:5000/send-otp", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          phone: fullPhone,
-        }),
+      navigation.navigate("OTPScreen", {
+        verificationId: response.verificationId,
+        phoneNumber: fullPhoneNumber,
       });
 
-      const data = await response.json();
+    } else {
 
-      if (!response.ok) {
-        Alert.alert("Error", data.message || "Failed to send OTP");
-        setLoading(false);
-        return;
-      }
+      Alert.alert(
+        "Error",
+        response.error
+      );
 
-      Alert.alert("Success", "OTP sent successfully ✅");
-
-      navigation.navigate("OTPScreen", { phone: fullPhone });
-
-    } catch (error) {
-      console.log("OTP Error:", error);
-      Alert.alert("Error", "Server not reachable. Check backend.");
-    } finally {
-      setLoading(false);
     }
-  };
+
+  } catch (error) {
+
+    Alert.alert(
+      "Error",
+      error.message
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
+};
+
 
   return (
     <SafeAreaView style={styles.container}>
+      <FirebaseRecaptchaVerifierModal
+  ref={recaptchaVerifier}
+  firebaseConfig={auth.app.options}
+/>
 
       {/* Back Button */}
       <TouchableOpacity onPress={() => navigation.navigate("Landing")}>
@@ -114,7 +130,7 @@ export default function PhoneInput() {
 
       {/* Get OTP Button */}
       <TouchableOpacity
-        onPress={() => navigation.navigate("OTPScreen")}
+        onPress={handleSendOtp}
         style={styles.button}
         disabled={loading}
       >
