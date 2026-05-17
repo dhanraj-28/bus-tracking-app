@@ -9,12 +9,18 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute } from "@react-navigation/native";
+import { Alert } from "react-native";
+
+import { verifyOtpController } from "../../src/controllers/authController";
 
 export default function OtpScreen() {
   const navigation = useNavigation();
   const route = useRoute();
 
-  const { phone } = route.params || {};
+  const {
+  phoneNumber,
+  verificationId,
+} = route.params || {};
 
  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
 
@@ -31,36 +37,58 @@ export default function OtpScreen() {
       inputs.current[index + 1].focus();
     }
   };
-const verifyOTP = async () => {
-  const enteredOtp = otp.join("");
 
-  if (enteredOtp.length !== 6) {
-    alert("Please enter complete OTP");
-    return;
-  }
+  const handleVerifyOtp = async () => {
 
   try {
-    const response = await fetch("http://192.168.1.102:5000/verify-otp", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        phone: phone,
-        otp: enteredOtp,
-      }),
-    });
 
-    const data = await response.json();
+    const enteredOtp = otp.join("");
 
-    if (response.ok) {
-      alert("OTP Verified ✅");
-      navigation.navigate("Dashboard");
-    } else {
-      alert(data.message || "Invalid OTP");
+    if (enteredOtp.length !== 6) {
+
+      Alert.alert(
+        "Error",
+        "Please enter complete OTP"
+      );
+
+      return;
     }
+
+    const response = await verifyOtpController(
+      verificationId,
+      enteredOtp
+    );
+
+    if (response.success) {
+
+      Alert.alert(
+        "Success",
+        "Login Successful"
+      );
+
+      console.log(
+        "Logged In User:",
+        response.user
+      );
+
+      navigation.navigate("Dashboard");
+
+    } else {
+
+      Alert.alert(
+        "OTP Error",
+        response.error
+      );
+
+    }
+
   } catch (error) {
-    alert("Server error. Check backend.");
+
+    Alert.alert(
+      "Error",
+      error.message
+    );
+
   }
 };
   return (
@@ -76,7 +104,9 @@ const verifyOTP = async () => {
         Enter the 6 digit OTP sent to
       </Text>
 
-      <Text style={styles.phone}>{phone}</Text>
+    <Text style={styles.phone}>
+  {phoneNumber}
+</Text>
 
       {/* OTP Boxes */}
       <View style={styles.otpContainer}>
@@ -100,7 +130,7 @@ const verifyOTP = async () => {
       </Text>
 
       {/* Proceed Button */}
-      <TouchableOpacity  onPress={() => navigation.navigate("Dashboard")} style={styles.button}>
+      <TouchableOpacity onPress={handleVerifyOtp}  style={styles.button}>
         <Text style={styles.buttonText}>Proceed</Text>
       </TouchableOpacity>
 

@@ -36,6 +36,9 @@ import LiveTrack from "./Components/Passenger/LiveTrack";
 import { LanguageProvider } from "./context/LanguageContext";
 import MobileOTP from "./Components/Passenger/MobileOTP";
 import OtpScreen from "./Components/Passenger/OTPScreen";
+import { auth } from "./src/config/firebase";
+
+console.log("Firebase Connected:", auth);
 const Stack = createNativeStackNavigator();
 export default function App() {
   return (
