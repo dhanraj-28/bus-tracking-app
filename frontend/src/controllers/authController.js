@@ -2,6 +2,9 @@ import {
   sendOtpService,
   verifyOtpService,
 } from "../services/authService";
+import {
+  createUserInFirestore
+} from "../services/userService";
 
 export const sendOtpController = async (
   phoneNumber,
