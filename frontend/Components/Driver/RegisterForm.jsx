@@ -1,33 +1,48 @@
+// RegisterForm.js
 
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  View, Text, TextInput, TouchableOpacity,
+  StyleSheet, ActivityIndicator, Alert,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-
+// RegisterForm.jsx — line 10
+import { handleDriverLogin } from "../../src/controllers/driRegisterController";
 export default function RegisterForm() {
   const navigation = useNavigation();
-  const [form, setForm] = useState({
-    name: "",
-    uid: "",
-    password: "",
-  });
+  const [form, setForm] = useState({ name: "", uid: "", password: "" });
+  const [loading, setLoading] = useState(false);
 
- 
-
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!form.name || !form.uid || !form.password) {
-      alert("Please fill all fields");
+      Alert.alert("Error", "Please fill all fields");
       return;
     }
-    else{
-  navigation.navigate("QRScanner", { formData: form });
+
+    setLoading(true);
+
+    // 👇 Call controller to validate uid + password against Firestore
+    const result = await handleDriverLogin(form.uid, form.password);
+
+    setLoading(false);
+
+    if (result.success) {
+      // ✅ Data matched — navigate to QRScanner
+      navigation.navigate("QRScanner", {
+        formData: form,
+        driver: result.driver, // full driver object from Firestore
+      });
+    } else {
+      // ❌ Show error message
+      Alert.alert("Validation Failed", result.error);
     }
   };
 
   return (
     <View style={styles.container}>
 
-      {/* 🔙 Back Arrow + Title */}
+      {/* Back Arrow + Title */}
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => navigation.navigate("Landing")}>
           <Ionicons name="arrow-back" size={24} color="#000" />
@@ -58,8 +73,15 @@ export default function RegisterForm() {
           onChangeText={(t) => setForm({ ...form, password: t })}
         />
 
-        <TouchableOpacity style={styles.registerBtn} onPress={handleRegister}>
-          <Text style={styles.registerText}>REGISTER</Text>
+        <TouchableOpacity
+          style={[styles.registerBtn, loading && { opacity: 0.7 }]}
+          onPress={handleRegister}
+          disabled={loading}
+        >
+          {loading
+            ? <ActivityIndicator color="#fff" />
+            : <Text style={styles.registerText}>REGISTER</Text>
+          }
         </TouchableOpacity>
       </View>
     </View>
@@ -73,32 +95,24 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 60,
   },
-
-  /* Header */
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 30,
   },
-
   headerTitle: {
     fontSize: 20,
     fontWeight: "bold",
     color: "#1A1A3F",
     marginLeft: 10,
   },
-
-  formBox: {
-    width: "100%",
-  },
-
+  formBox: { width: "100%" },
   label: {
     fontSize: 14,
     fontWeight: "600",
     color: "#1A1A3F",
     marginBottom: 5,
   },
-
   input: {
     borderWidth: 1,
     borderColor: "#ccc",
@@ -107,7 +121,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: "#fff",
   },
-
   registerBtn: {
     backgroundColor: "#4B3CCD",
     paddingVertical: 14,
@@ -115,7 +128,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
   },
-
   registerText: {
     color: "#fff",
     fontSize: 16,
