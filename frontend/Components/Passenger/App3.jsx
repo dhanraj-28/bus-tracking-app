@@ -3,9 +3,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import PaymentScreen from './PaymentScreen';
-import Trackbus from './Trackbus';
+import Trackbus from './TrackBus';
 import BuyBusPassScreen from './BuyBusPassScreen';
-import { BusDetailScreen } from './Trackbus';
+import { BusDetailScreen } from './TrackBus';
 
 const Stack = createNativeStackNavigator();
 
