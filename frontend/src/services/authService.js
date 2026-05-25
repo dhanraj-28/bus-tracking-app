@@ -4,6 +4,9 @@ import {
 } from "firebase/auth";
 
 import { auth } from "../config/firebase";
+import {
+  createUserInFirestore
+} from "../services/userService";
 
 export const sendOtpService = async (
   phoneNumber,
@@ -43,6 +46,9 @@ export const verifyOtpService = async (
       auth,
       credential
     );
+    const user = userCredential.user;
+
+    await createUserInFirestore(user);
 
     return {
       success: true,
