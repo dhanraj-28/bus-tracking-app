@@ -1,3 +1,14 @@
+// ============================================================
+//  BusPassForm.jsx  —  Stage 5: Personal Information
+//  CHANGES FROM YOUR ORIGINAL:
+//   1. Added loading state while uploading + saving to Firestore
+//   2. handleNext() now calls handlePersonalInfoNext() from controller
+//      instead of just navigating directly
+//   3. image (photoLocalUri) is passed to controller for Firebase Storage upload
+//   4. Navigation to BuyBusPassScreen happens inside onSuccess callback
+//      (only after Firestore write is confirmed)
+//   Everything else (UI, styles, pickers, date picker) is UNCHANGED.
+// ============================================================
 
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
@@ -5,6 +16,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useState } from "react";
 import {
   Alert,
+  ActivityIndicator,   // ← NEW: spinner while saving
   Image,
   Platform,
   ScrollView,
@@ -17,6 +29,10 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 
+// ── Controller import ────────────────────────────────────────
+import { handlePersonalInfoNext } from "../../../src/controllers/busPassController";
+// (adjust the path based on your folder structure)
+
 export default function BusPassForm() {
   const navigation = useNavigation();
   const [image, setImage] = useState(null);
@@ -28,8 +44,7 @@ export default function BusPassForm() {
     email: "",
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
-
-
+  const [loading, setLoading] = useState(false); // ← NEW
 
   const onChangeDate = (event, selectedDate) => {
     setShowDatePicker(false);
@@ -58,18 +73,44 @@ export default function BusPassForm() {
     }
   };
 
-  const handleNext = () => {
-    if (!form.name || !form.mobile || !form.email) {
-      Alert.alert("Please fill all required fields");
-      return;
-    }
-    navigation.navigate("BuyBusPassScreen", { formData: form, photo: image });
+  // ── CHANGED: was just navigation.navigate(), now calls controller ──
+  const handleNext = async () => {
+    setLoading(true);
+
+    await handlePersonalInfoNext(
+      {
+        name: form.name,
+        dob: form.dob,           // ISO string "YYYY-MM-DD" from date picker
+        gender: form.gender,
+        mobileNo: form.mobile,   // note: your state key is "mobile", controller expects "mobileNo"
+        email: form.email,
+        photoLocalUri: image,    // local file:// URI from expo-image-picker
+      },
+      {
+        // ✅ Firestore write done — navigate forward
+        onSuccess: () => {
+          setLoading(false);
+          navigation.navigate("BuyBusPassScreen");
+          // ─── NOTE ────────────────────────────────────────────────────────
+          // We removed { formData: form, photo: image } from params because
+          // BuyBusPassScreen doesn't need them anymore — it only collects
+          // its own data (timePeriod, passType, fromDate) and the controller
+          // handles passing docPassId internally between stages.
+          // ─────────────────────────────────────────────────────────────────
+        },
+        // ❌ Something went wrong — show alert, stay on this screen
+        onError: (msg) => {
+          setLoading(false);
+          Alert.alert("Error", msg);
+        },
+      }
+    );
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
 
-      {/* 🔙 Back Arrow + Title (same position as other screens) */}
+      {/* Back Arrow + Title — UNCHANGED */}
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => navigation.navigate("Dashboard")}>
           <Ionicons name="arrow-back" size={24} color="#000" />
@@ -147,33 +188,41 @@ export default function BusPassForm() {
         <Text style={styles.btnText}>UPLOAD PHOTOGRAPH</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.nextBtn} onPress={handleNext}>
-        <Text style={styles.btnText}>NEXT</Text>
+      {/* ── NEXT button — shows spinner while saving ── */}
+      <TouchableOpacity
+        style={[styles.nextBtn, loading && { opacity: 0.7 }]}
+        onPress={handleNext}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.btnText}>NEXT</Text>
+        )}
       </TouchableOpacity>
+
     </ScrollView>
   );
 }
 
+// ── Styles — COMPLETELY UNCHANGED ────────────────────────────
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 20,
-    paddingTop: 60,   // ✅ SAME as other two screens
+    paddingTop: 60,
     backgroundColor: "#fff",
   },
-
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 15,
   },
-
   headerTitle: {
     fontSize: 22,
     fontWeight: "700",
     marginLeft: 10,
   },
-
   sectionTitle: {
     fontSize: 16,
     color: "#6A5ACD",
@@ -181,14 +230,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 8,
   },
-
   label: {
     alignSelf: "flex-start",
     fontSize: 14,
     marginBottom: 4,
     color: "#555",
   },
-
   input: {
     width: "100%",
     borderWidth: 1,
@@ -197,7 +244,6 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 12,
   },
-
   pickerContainer: {
     width: "100%",
     borderWidth: 1,
@@ -205,7 +251,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 12,
   },
-
   uploadBtn: {
     backgroundColor: "#6A5ACD",
     padding: 12,
@@ -215,7 +260,6 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     elevation: 3,
   },
-
   nextBtn: {
     backgroundColor: "#6A5ACD",
     padding: 12,
@@ -224,12 +268,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     elevation: 3,
   },
-
   btnText: {
     color: "#fff",
     fontWeight: "bold",
   },
-
   image: {
     width: 100,
     height: 100,
