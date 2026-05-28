@@ -1,4 +1,4 @@
-// RegisterForm.js
+// Components/Driver/RegisterForm.jsx
 
 import React, { useState } from "react";
 import {
@@ -7,8 +7,8 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-// RegisterForm.jsx — line 10
 import { handleDriverLogin } from "../../src/controllers/driRegisterController";
+
 export default function RegisterForm() {
   const navigation = useNavigation();
   const [form, setForm] = useState({ name: "", uid: "", password: "" });
@@ -22,19 +22,18 @@ export default function RegisterForm() {
 
     setLoading(true);
 
-    // 👇 Call controller to validate uid + password against Firestore
     const result = await handleDriverLogin(form.uid, form.password);
 
     setLoading(false);
 
     if (result.success) {
-      // ✅ Data matched — navigate to QRScanner
+      console.log("Driver object:", result.driver); // debug
       navigation.navigate("QRScanner", {
         formData: form,
-        driver: result.driver, // full driver object from Firestore
+        driver: result.driver,
+        driverUniqueId: form.uid.trim(), // ✅ use form.uid directly — already verified
       });
     } else {
-      // ❌ Show error message
       Alert.alert("Validation Failed", result.error);
     }
   };
@@ -42,7 +41,6 @@ export default function RegisterForm() {
   return (
     <View style={styles.container}>
 
-      {/* Back Arrow + Title */}
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={() => navigation.navigate("Landing")}>
           <Ionicons name="arrow-back" size={24} color="#000" />

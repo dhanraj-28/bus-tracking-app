@@ -1,3 +1,5 @@
+// Components/Driver/qrscanner/QRScanner.jsx
+
 import React, { useState } from "react";
 import {
   View,
@@ -10,9 +12,10 @@ import {
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
-export default function QRScanner() {
-  const navigation = useNavigation();
+
+// 👇 Accept route as prop to get driverUniqueId
+export default function QRScanner({ route, navigation }) {
+
   // 🚫 WEB HANDLING
   if (Platform.OS === "web") {
     return (
@@ -28,20 +31,30 @@ export default function QRScanner() {
   const [scanned, setScanned] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
 
+  // Get driverUniqueId passed from RegisterForm
+  const driverUniqueId = route?.params?.driverUniqueId;
+
   // ✅ HANDLE QR SCAN
   const handleScan = ({ data }) => {
-    if (scanned) return; // prevent double scan
+    if (scanned) return;
 
     setScanned(true);
     setIsScanning(false);
 
+    console.log("RAW QR DATA:", data); // debug log
+
     try {
       const parsedData = JSON.parse(data);
 
+      console.log("PARSED DATA:", parsedData); // debug log
+
+      // 👇 Pass both busData and driverUniqueId to BusDetailsScreen
       navigation.replace("BusDetailsScreen", {
         busData: parsedData,
+        driverUniqueId: driverUniqueId,
       });
     } catch (error) {
+      console.log("PARSE ERROR:", error); // debug log
       Alert.alert("Invalid QR Code", "QR does not contain valid bus data");
     }
   };
@@ -56,7 +69,6 @@ export default function QRScanner() {
         <Text style={{ textAlign: "center", marginBottom: 10 }}>
           Camera permission is required
         </Text>
-
         <TouchableOpacity style={styles.button} onPress={requestPermission}>
           <Text style={styles.buttonText}>GRANT PERMISSION</Text>
         </TouchableOpacity>
@@ -67,7 +79,7 @@ export default function QRScanner() {
   return (
     <View style={styles.container}>
 
-      {/* 🔙 BACK BUTTON (RESETS SCANNER) */}
+      {/* 🔙 BACK BUTTON */}
       <View style={styles.header}>
         <Pressable
           onPress={() => {
@@ -77,7 +89,6 @@ export default function QRScanner() {
         >
           <Ionicons name="arrow-back" size={28} color="#000" />
         </Pressable>
-
         <Text style={styles.title}>SCAN QR CODE</Text>
       </View>
 
@@ -117,6 +128,7 @@ export default function QRScanner() {
           <Text style={styles.buttonText}>SCAN AGAIN</Text>
         </TouchableOpacity>
       )}
+
     </View>
   );
 }
@@ -128,34 +140,29 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
-
   container: {
     flex: 1,
     backgroundColor: "#fff",
     paddingTop: 50,
   },
-
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
     marginBottom: 30,
   },
-
   title: {
     fontSize: 24,
     fontWeight: "bold",
     color: "#2C2C7C",
     marginLeft: 20,
   },
-
   permissionContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
   },
-
   qrFrame: {
     alignSelf: "center",
     width: 260,
@@ -165,7 +172,6 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: "#000",
   },
-
   button: {
     alignSelf: "center",
     marginTop: 40,
@@ -175,7 +181,6 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     elevation: 5,
   },
-
   buttonText: {
     color: "#fff",
     fontWeight: "bold",
