@@ -26,14 +26,7 @@ export default function NotificationsPage() {
         button: "Renew",
         icon: "card-outline",
       },
-      {
-        id: 3,
-        title: "Reward received",
-        message:
-          "Congratulations, you have received a reward for purchasing a digital ticket for your journey; open to claim your reward.",
-        button: "Open",
-        icon: "ribbon-outline",
-      },
+      
     ];
     setNotifications(data);
   }, []);
