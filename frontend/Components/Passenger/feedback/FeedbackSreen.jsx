@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { submitFeedbackController } from "../../../src/controllers/fbController";
+import { auth } from "../../../src/config/firebase";
 
 export default function FeedbackScreen() {
   const navigation = useNavigation();
@@ -30,22 +32,44 @@ export default function FeedbackScreen() {
     ]).start();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (selectedEmoji === null || feedback.trim() === '') {
       Alert.alert('Incomplete', 'Please select an emoji and write your feedback.');
       return;
     }
 
-    console.log({
-      mood: emojis[selectedEmoji],
-      accuracy,
-      feedback,
-    });
+    try {
+      const currentUser = auth.currentUser;
 
-    Alert.alert('Thank you!', 'Your feedback has been submitted.');
-    setSelectedEmoji(null);
-    setAccuracy('Yes');
-    setFeedback('');
+      if (!currentUser) {
+        Alert.alert("Error", "User not logged in");
+        return;
+      }
+
+      const rating = selectedEmoji + 1;
+      const locationAccuracy = accuracy === "Yes";
+
+      const result = await submitFeedbackController({
+        userId: currentUser.uid,
+        rating,
+        locationAccuracy,
+        message: feedback,
+      });
+
+      console.log("Feedback Result:", result);
+
+      if (result.success) {
+        Alert.alert('Thank you!', 'Your feedback has been submitted.');
+        setSelectedEmoji(null);
+        setAccuracy('Yes');
+        setFeedback('');
+      } else {
+        Alert.alert("Error", result.error || "Failed to submit feedback");
+      }
+    } catch (error) {
+      console.log("Feedback Submit Error:", error);
+      Alert.alert("Error", "Something went wrong");
+    }
   };
 
   const backgroundColor =
