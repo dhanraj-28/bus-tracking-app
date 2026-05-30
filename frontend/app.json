@@ -25,7 +25,12 @@
         "googleMaps": {
           "apiKey": "YOUR_GOOGLE_API_KEY"
         }
-      }
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.CAMERA"
+      ],
+      "package": "com.anonymous.frontend"
     },
     "web": {
       "favicon": "./assets/favicon.png",

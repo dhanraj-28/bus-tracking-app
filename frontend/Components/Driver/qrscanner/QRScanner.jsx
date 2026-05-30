@@ -25,7 +25,7 @@ export default function QRScanner({ route, navigation }) {
   const [isScanning, setIsScanning] = useState(false);
 
   const driverUniqueId = route?.params?.driverUniqueId;
-  const driver = route?.params?.driver; // 👈 also carry driver object
+  const driver = route?.params?.driver;
 
   const handleScan = ({ data }) => {
     if (scanned) return;
@@ -41,7 +41,7 @@ export default function QRScanner({ route, navigation }) {
       navigation.replace("BusDetailsScreen", {
         busData: parsedData,
         driverUniqueId: driverUniqueId,
-        driver: driver, // 👈 pass driver forward
+        driver: driver,
       });
     } catch (error) {
       console.log("PARSE ERROR:", error);
@@ -76,19 +76,13 @@ export default function QRScanner({ route, navigation }) {
 
       <View style={styles.qrFrame}>
         {isScanning && (
-  <View
-    style={[
-      StyleSheet.absoluteFillObject,
-      {
-        backgroundColor: "red",
-        justifyContent: "center",
-        alignItems: "center",
-      },
-    ]}
-  >
-    <Text>Camera Disabled</Text>
-  </View>
-)}
+          <CameraView  // ✅ restored original CameraView
+            style={StyleSheet.absoluteFillObject}
+            facing="back"
+            onBarcodeScanned={!scanned ? handleScan : undefined}
+            barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
+          />
+        )}
       </View>
 
       {!isScanning && !scanned && (
