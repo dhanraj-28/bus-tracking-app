@@ -1,4 +1,4 @@
-// src/controllers/DashboardController.js
+// src/controllers/driDashboardController.js
 
 import {
   fetchBusInfo,
@@ -8,28 +8,25 @@ import {
   getTodaySessionCount,
 } from "../services/driDashboardService";
 
-// ─────────────────────────────────────────
-// FETCH BUS INFO
-// ─────────────────────────────────────────
 export const handleFetchBusInfo = async (driverUniqueId) => {
   try {
     const busInfo = await fetchBusInfo(driverUniqueId);
     return { success: true, busInfo };
   } catch (err) {
-    if (err.message === "BUS_INFO_NOT_FOUND") {
-      return { success: false, error: "No bus assigned. Please scan QR again." };
-    }
+    if (err.message === "DRIVER_NOT_FOUND")
+      return { success: false, error: "Driver not found. Please login again." };
+    if (err.message === "BUS_NOT_ASSIGNED")
+      return { success: false, error: "No bus assigned to this driver." };
+    if (err.message === "BUS_NOT_FOUND")
+      return { success: false, error: "Bus not found. Contact admin." };
     console.error("fetchBusInfo error:", err);
     return { success: false, error: "Failed to load bus info." };
   }
 };
 
-// ─────────────────────────────────────────
-// TOGGLE GPS ON
-// ─────────────────────────────────────────
-export const handleStartGps = async (driverUniqueId, busId) => {
+export const handleStartGps = async (driverUniqueId, busDocId) => {
   try {
-    await startGpsSession(driverUniqueId, busId);
+    await startGpsSession(driverUniqueId, busDocId);
     return { success: true };
   } catch (err) {
     console.error("startGps error:", err);
@@ -37,9 +34,6 @@ export const handleStartGps = async (driverUniqueId, busId) => {
   }
 };
 
-// ─────────────────────────────────────────
-// TOGGLE GPS OFF
-// ─────────────────────────────────────────
 export const handleStopGps = async (driverUniqueId, totalSeconds) => {
   try {
     await stopGpsSession(driverUniqueId, totalSeconds);
@@ -50,25 +44,30 @@ export const handleStopGps = async (driverUniqueId, totalSeconds) => {
   }
 };
 
-// ─────────────────────────────────────────
-// UPDATE LIVE LOCATION
-// ─────────────────────────────────────────
-export const handleUpdateLocation = async (busId, driverUniqueId) => {
+export const handleUpdateLocation = async (
+  busDocId,
+  driverUniqueId,
+  routeId,
+  stopsSequence,
+  currentStopIndex
+) => {
   try {
-    const coords = await updateBusLocation(busId, driverUniqueId);
-    return { success: true, coords };
+    const result = await updateBusLocation(
+      busDocId,
+      driverUniqueId,
+      routeId,
+      stopsSequence,
+      currentStopIndex
+    );
+    return { success: true, ...result };
   } catch (err) {
-    if (err.message === "LOCATION_PERMISSION_DENIED") {
+    if (err.message === "LOCATION_PERMISSION_DENIED")
       return { success: false, error: "Location permission denied." };
-    }
     console.error("updateLocation error:", err);
     return { success: false, error: "Failed to update location." };
   }
 };
 
-// ─────────────────────────────────────────
-// GET TODAY SESSION COUNT
-// ─────────────────────────────────────────
 export const handleGetSessionCount = async (driverUniqueId) => {
   try {
     const count = await getTodaySessionCount(driverUniqueId);

@@ -21,17 +21,14 @@ export default function RegisterForm() {
     }
 
     setLoading(true);
-
     const result = await handleDriverLogin(form.uid, form.password);
-
     setLoading(false);
 
     if (result.success) {
-      console.log("Driver object:", result.driver); // debug
       navigation.navigate("QRScanner", {
         formData: form,
-        driver: result.driver,
-        driverUniqueId: form.uid.trim(), // ✅ use form.uid directly — already verified
+        driver: result.driver,             // 👈 full driver object
+        driverUniqueId: form.uid.trim(),   // 👈 direct uid
       });
     } else {
       Alert.alert("Validation Failed", result.error);
@@ -87,48 +84,12 @@ export default function RegisterForm() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingHorizontal: 20,
-    paddingTop: 60,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 30,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#1A1A3F",
-    marginLeft: 10,
-  },
+  container: { flex: 1, backgroundColor: "#fff", paddingHorizontal: 20, paddingTop: 60 },
+  headerRow: { flexDirection: "row", alignItems: "center", marginBottom: 30 },
+  headerTitle: { fontSize: 20, fontWeight: "bold", color: "#1A1A3F", marginLeft: 10 },
   formBox: { width: "100%" },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#1A1A3F",
-    marginBottom: 5,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 6,
-    padding: 10,
-    marginBottom: 20,
-    backgroundColor: "#fff",
-  },
-  registerBtn: {
-    backgroundColor: "#4B3CCD",
-    paddingVertical: 14,
-    borderRadius: 30,
-    alignItems: "center",
-    marginTop: 10,
-  },
-  registerText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
+  label: { fontSize: 14, fontWeight: "600", color: "#1A1A3F", marginBottom: 5 },
+  input: { borderWidth: 1, borderColor: "#ccc", borderRadius: 6, padding: 10, marginBottom: 20, backgroundColor: "#fff" },
+  registerBtn: { backgroundColor: "#4B3CCD", paddingVertical: 14, borderRadius: 30, alignItems: "center", marginTop: 10 },
+  registerText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
 });

@@ -2,21 +2,14 @@
 
 import React, { useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  Platform,
-  Pressable,
+  View, Text, StyleSheet, TouchableOpacity,
+  Alert, Platform, Pressable,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { Ionicons } from "@expo/vector-icons";
 
-// 👇 Accept route as prop to get driverUniqueId
 export default function QRScanner({ route, navigation }) {
 
-  // 🚫 WEB HANDLING
   if (Platform.OS === "web") {
     return (
       <View style={styles.webContainer}>
@@ -31,37 +24,32 @@ export default function QRScanner({ route, navigation }) {
   const [scanned, setScanned] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
 
-  // Get driverUniqueId passed from RegisterForm
   const driverUniqueId = route?.params?.driverUniqueId;
+  const driver = route?.params?.driver; // 👈 also carry driver object
 
-  // ✅ HANDLE QR SCAN
   const handleScan = ({ data }) => {
     if (scanned) return;
-
     setScanned(true);
     setIsScanning(false);
 
-    console.log("RAW QR DATA:", data); // debug log
+    console.log("RAW QR DATA:", data);
 
     try {
       const parsedData = JSON.parse(data);
+      console.log("PARSED DATA:", parsedData);
 
-      console.log("PARSED DATA:", parsedData); // debug log
-
-      // 👇 Pass both busData and driverUniqueId to BusDetailsScreen
       navigation.replace("BusDetailsScreen", {
         busData: parsedData,
         driverUniqueId: driverUniqueId,
+        driver: driver, // 👈 pass driver forward
       });
     } catch (error) {
-      console.log("PARSE ERROR:", error); // debug log
+      console.log("PARSE ERROR:", error);
       Alert.alert("Invalid QR Code", "QR does not contain valid bus data");
     }
   };
 
-  if (!permission) {
-    return <Text>Checking camera permission...</Text>;
-  }
+  if (!permission) return <Text>Checking camera permission...</Text>;
 
   if (!permission.granted) {
     return (
@@ -79,51 +67,40 @@ export default function QRScanner({ route, navigation }) {
   return (
     <View style={styles.container}>
 
-      {/* 🔙 BACK BUTTON */}
       <View style={styles.header}>
-        <Pressable
-          onPress={() => {
-            setScanned(false);
-            setIsScanning(false);
-          }}
-        >
+        <Pressable onPress={() => { setScanned(false); setIsScanning(false); }}>
           <Ionicons name="arrow-back" size={28} color="#000" />
         </Pressable>
         <Text style={styles.title}>SCAN QR CODE</Text>
       </View>
 
-      {/* 📷 CAMERA FRAME */}
       <View style={styles.qrFrame}>
         {isScanning && (
-          <CameraView
-            style={StyleSheet.absoluteFillObject}
-            facing="back"
-            onBarcodeScanned={!scanned ? handleScan : undefined}
-            barcodeScannerSettings={{
-              barcodeTypes: ["qr"],
-            }}
-          />
-        )}
+  <View
+    style={[
+      StyleSheet.absoluteFillObject,
+      {
+        backgroundColor: "red",
+        justifyContent: "center",
+        alignItems: "center",
+      },
+    ]}
+  >
+    <Text>Camera Disabled</Text>
+  </View>
+)}
       </View>
 
-      {/* ▶ START SCAN BUTTON */}
       {!isScanning && !scanned && (
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => setIsScanning(true)}
-        >
+        <TouchableOpacity style={styles.button} onPress={() => setIsScanning(true)}>
           <Text style={styles.buttonText}>START SCAN</Text>
         </TouchableOpacity>
       )}
 
-      {/* 🔄 SCAN AGAIN BUTTON */}
       {scanned && (
         <TouchableOpacity
           style={styles.button}
-          onPress={() => {
-            setScanned(false);
-            setIsScanning(false);
-          }}
+          onPress={() => { setScanned(false); setIsScanning(false); }}
         >
           <Text style={styles.buttonText}>SCAN AGAIN</Text>
         </TouchableOpacity>
@@ -134,56 +111,18 @@ export default function QRScanner({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  webContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    paddingTop: 50,
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    marginBottom: 30,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#2C2C7C",
-    marginLeft: 20,
-  },
-  permissionContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
+  webContainer: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20 },
+  container: { flex: 1, backgroundColor: "#fff", paddingTop: 50 },
+  header: { flexDirection: "row", alignItems: "center", paddingHorizontal: 20, marginBottom: 30 },
+  title: { fontSize: 24, fontWeight: "bold", color: "#2C2C7C", marginLeft: 20 },
+  permissionContainer: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20 },
   qrFrame: {
-    alignSelf: "center",
-    width: 260,
-    height: 260,
-    overflow: "hidden",
-    borderRadius: 20,
-    borderWidth: 3,
-    borderColor: "#000",
+    alignSelf: "center", width: 260, height: 260,
+    overflow: "hidden", borderRadius: 20, borderWidth: 3, borderColor: "#000",
   },
   button: {
-    alignSelf: "center",
-    marginTop: 40,
-    backgroundColor: "#4834D4",
-    paddingVertical: 14,
-    paddingHorizontal: 50,
-    borderRadius: 30,
-    elevation: 5,
+    alignSelf: "center", marginTop: 40, backgroundColor: "#4834D4",
+    paddingVertical: 14, paddingHorizontal: 50, borderRadius: 30, elevation: 5,
   },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 18,
-  },
+  buttonText: { color: "#fff", fontWeight: "bold", fontSize: 18 },
 });

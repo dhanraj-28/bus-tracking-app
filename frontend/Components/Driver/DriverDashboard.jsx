@@ -8,7 +8,6 @@ import {
 import { Image } from "react-native";
 import NetInfo from "@react-native-community/netinfo";
 import Ionicons from "react-native-vector-icons/Ionicons";
-// ✅ Correct filename
 import {
   handleFetchBusInfo,
   handleStartGps,
@@ -21,18 +20,19 @@ const DriverDashboard = ({ route, navigation }) => {
   const driverUniqueId = route?.params?.driverUniqueId;
   const driverName = route?.params?.driver?.name || "Driver";
 
-  // ===== STATES =====
   const [isOnline, setIsOnline] = useState(false);
   const [gpsActive, setGpsActive] = useState(false);
   const [seconds, setSeconds] = useState(0);
   const [sessions, setSessions] = useState(0);
   const [busInfo, setBusInfo] = useState(null);
+  const [currentStopIndex, setCurrentStopIndex] = useState(0);
+  const [currentStopName, setCurrentStopName] = useState(null);
+  const [nextStopName, setNextStopName] = useState(null);
 
-  // Ref to hold location update interval
   const locationInterval = useRef(null);
   const timerInterval = useRef(null);
 
-  // ===== 1. NETWORK STATUS =====
+  // 1. NETWORK STATUS
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       setIsOnline(state.isConnected && state.isInternetReachable);
@@ -40,35 +40,36 @@ const DriverDashboard = ({ route, navigation }) => {
     return () => unsubscribe();
   }, []);
 
-  // ===== 2. FETCH BUS INFO =====
+  // 2. FETCH BUS INFO from drivers → buses → Routes
   useEffect(() => {
     if (!driverUniqueId) return;
-
     const loadBusInfo = async () => {
       const result = await handleFetchBusInfo(driverUniqueId);
       if (result.success) {
         setBusInfo(result.busInfo);
+        console.log("Bus info loaded:", JSON.stringify(result.busInfo));
+        if (result.busInfo.stopsSequence?.length > 0) {
+          setCurrentStopName(result.busInfo.stopsSequence[0]?.name);
+          setNextStopName(result.busInfo.stopsSequence[1]?.name);
+        }
       } else {
         Alert.alert("Bus Info", result.error);
       }
     };
-
     loadBusInfo();
   }, [driverUniqueId]);
 
-  // ===== 3. FETCH SESSION COUNT =====
+  // 3. SESSION COUNT
   useEffect(() => {
     if (!driverUniqueId) return;
-
     const loadSessions = async () => {
       const result = await handleGetSessionCount(driverUniqueId);
       if (result.success) setSessions(result.count);
     };
-
     loadSessions();
   }, [driverUniqueId]);
 
-  // ===== 4. TIMER =====
+  // 4. TIMER
   useEffect(() => {
     if (gpsActive) {
       timerInterval.current = setInterval(() => {
@@ -80,27 +81,56 @@ const DriverDashboard = ({ route, navigation }) => {
     return () => clearInterval(timerInterval.current);
   }, [gpsActive]);
 
-  // ===== 5. GPS TOGGLE =====
+  // 5. GPS TOGGLE
   const toggleGps = async () => {
     if (!gpsActive) {
-      // Turn GPS ON
-      const result = await handleStartGps(driverUniqueId, busInfo?.BusId);
+      const result = await handleStartGps(driverUniqueId, busInfo?.busDocId);
       if (result.success) {
         setGpsActive(true);
         setSeconds(0);
+        setCurrentStopIndex(0);
 
-        // Start sending location every 10 seconds
+        // First location update immediately
+        const locResult = await handleUpdateLocation(
+          busInfo?.busDocId,
+          driverUniqueId,
+          busInfo?.routeId,
+          busInfo?.stopsSequence,
+          0
+        );
+        if (locResult.success) {
+          setCurrentStopName(busInfo?.stopsSequence?.[0]?.name);
+          setNextStopName(busInfo?.stopsSequence?.[1]?.name);
+        }
+
+        // Update every 10 seconds, advance stop index
         locationInterval.current = setInterval(async () => {
-          await handleUpdateLocation(busInfo?.BusId || driverUniqueId, driverUniqueId);
-        }, 10000);
+          setCurrentStopIndex((prevIndex) => {
+            const newIndex =
+              prevIndex + 1 < (busInfo?.stopsSequence?.length || 0)
+                ? prevIndex + 1
+                : prevIndex;
 
-        // Send first location immediately
-        await handleUpdateLocation(busInfo?.BusId || driverUniqueId, driverUniqueId);
+            handleUpdateLocation(
+              busInfo?.busDocId,
+              driverUniqueId,
+              busInfo?.routeId,
+              busInfo?.stopsSequence,
+              newIndex
+            ).then((res) => {
+              if (res.success) {
+                setCurrentStopName(busInfo?.stopsSequence?.[newIndex]?.name);
+                setNextStopName(busInfo?.stopsSequence?.[newIndex + 1]?.name);
+              }
+            });
+
+            return newIndex;
+          });
+        }, 10000);
       } else {
         Alert.alert("GPS Error", result.error);
       }
     } else {
-      // Turn GPS OFF
       clearInterval(locationInterval.current);
       const result = await handleStopGps(driverUniqueId, seconds);
       if (result.success) {
@@ -151,32 +181,38 @@ const DriverDashboard = ({ route, navigation }) => {
         <View style={styles.row}>
           <View>
             <Text style={styles.label}>Bus Number</Text>
-            <Text style={styles.value}>
-              {busInfo?.routeNumber || "Loading..."}
-            </Text>
+            <Text style={styles.value}>{busInfo?.busNumber || "Loading..."}</Text>
           </View>
           <View>
             <Text style={styles.label}>Route</Text>
-            <Text style={styles.value}>
-              {busInfo?.routeName || "Loading..."}
-            </Text>
+            <Text style={styles.value}>{busInfo?.routeName || "Loading..."}</Text>
           </View>
         </View>
+
+        {/* Current & Next Stop — only shown when GPS active */}
+        {gpsActive && (
+          <View style={styles.row}>
+            <View>
+              <Text style={styles.label}>Current Stop</Text>
+              <Text style={styles.value}>{currentStopName || "-"}</Text>
+            </View>
+            <View>
+              <Text style={styles.label}>Next Stop</Text>
+              <Text style={styles.value}>{nextStopName || "Last Stop"}</Text>
+            </View>
+          </View>
+        )}
       </View>
 
       {/* GPS CARD */}
       <View style={styles.card}>
         <View style={styles.gpsHeader}>
           <Text style={styles.cardTitle}>📍 GPS Tracking</Text>
-
-          {/* ✅ GPS Toggle Button */}
           <TouchableOpacity
             style={[styles.statusBadge, { backgroundColor: gpsActive ? "#6C63FF" : "#B0B0B0" }]}
             onPress={toggleGps}
           >
-            <Text style={styles.statusText}>
-              {gpsActive ? "ACTIVE" : "INACTIVE"}
-            </Text>
+            <Text style={styles.statusText}>{gpsActive ? "ACTIVE" : "INACTIVE"}</Text>
           </TouchableOpacity>
         </View>
 
@@ -219,8 +255,8 @@ const styles = StyleSheet.create({
   onlineText: { fontSize: 12, fontWeight: "700" },
   welcome: { marginTop: 12, fontSize: 19, color: "#444" },
   card: {
-    backgroundColor: "#fff", borderRadius: 20, padding: 20,
-    marginTop: 18, elevation: 8, shadowColor: "#000",
+    backgroundColor: "#fff", borderRadius: 20, padding: 10,
+    marginTop: 10, elevation: 8, shadowColor: "#000",
     shadowOpacity: 0.15, shadowOffset: { width: 0, height: 4 },
   },
   cardTitle: { fontSize: 19, bottom: 7, fontWeight: "700" },
