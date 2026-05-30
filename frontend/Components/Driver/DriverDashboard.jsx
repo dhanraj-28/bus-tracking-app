@@ -10,6 +10,7 @@ import NetInfo from "@react-native-community/netinfo";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import {
   handleFetchBusInfo,
+  handleCheckExistingSession,
   handleStartGps,
   handleStopGps,
   handleUpdateLocation,
@@ -40,14 +41,13 @@ const DriverDashboard = ({ route, navigation }) => {
     return () => unsubscribe();
   }, []);
 
-  // 2. FETCH BUS INFO from drivers → buses → Routes
+  // 2. FETCH BUS INFO
   useEffect(() => {
     if (!driverUniqueId) return;
     const loadBusInfo = async () => {
       const result = await handleFetchBusInfo(driverUniqueId);
       if (result.success) {
         setBusInfo(result.busInfo);
-        console.log("Bus info loaded:", JSON.stringify(result.busInfo));
         if (result.busInfo.stopsSequence?.length > 0) {
           setCurrentStopName(result.busInfo.stopsSequence[0]?.name);
           setNextStopName(result.busInfo.stopsSequence[1]?.name);
@@ -59,7 +59,25 @@ const DriverDashboard = ({ route, navigation }) => {
     loadBusInfo();
   }, [driverUniqueId]);
 
-  // 3. SESSION COUNT
+  // 3. CHECK IF GPS ALREADY ACTIVE — auto resume
+  useEffect(() => {
+    if (!driverUniqueId) return;
+    const checkSession = async () => {
+      const result = await handleCheckExistingSession(driverUniqueId);
+      if (result.success && result.session?.isActive) {
+        // GPS was already on — resume timer from where it left off
+        setSeconds(result.session.elapsedSeconds);
+        setGpsActive(true);
+        Alert.alert(
+          "GPS Session Resumed",
+          `Your GPS session is already active.\nRunning for ${Math.floor(result.session.elapsedSeconds / 60)} min.`
+        );
+      }
+    };
+    checkSession();
+  }, [driverUniqueId]);
+
+  // 4. SESSION COUNT
   useEffect(() => {
     if (!driverUniqueId) return;
     const loadSessions = async () => {
@@ -69,7 +87,7 @@ const DriverDashboard = ({ route, navigation }) => {
     loadSessions();
   }, [driverUniqueId]);
 
-  // 4. TIMER
+  // 5. TIMER
   useEffect(() => {
     if (gpsActive) {
       timerInterval.current = setInterval(() => {
@@ -81,7 +99,7 @@ const DriverDashboard = ({ route, navigation }) => {
     return () => clearInterval(timerInterval.current);
   }, [gpsActive]);
 
-  // 5. GPS TOGGLE
+  // 6. GPS TOGGLE
   const toggleGps = async () => {
     if (!gpsActive) {
       const result = await handleStartGps(driverUniqueId, busInfo?.busDocId);
@@ -90,40 +108,31 @@ const DriverDashboard = ({ route, navigation }) => {
         setSeconds(0);
         setCurrentStopIndex(0);
 
-        // First location update immediately
         const locResult = await handleUpdateLocation(
-          busInfo?.busDocId,
-          driverUniqueId,
-          busInfo?.routeId,
-          busInfo?.stopsSequence,
-          0
+          busInfo?.busDocId, driverUniqueId,
+          busInfo?.routeId, busInfo?.stopsSequence, 0
         );
         if (locResult.success) {
           setCurrentStopName(busInfo?.stopsSequence?.[0]?.name);
           setNextStopName(busInfo?.stopsSequence?.[1]?.name);
+        } else {
+          Alert.alert("Location Error", locResult.error);
         }
 
-        // Update every 10 seconds, advance stop index
         locationInterval.current = setInterval(async () => {
           setCurrentStopIndex((prevIndex) => {
-            const newIndex =
-              prevIndex + 1 < (busInfo?.stopsSequence?.length || 0)
-                ? prevIndex + 1
-                : prevIndex;
+            const newIndex = prevIndex + 1 < (busInfo?.stopsSequence?.length || 0)
+              ? prevIndex + 1 : prevIndex;
 
             handleUpdateLocation(
-              busInfo?.busDocId,
-              driverUniqueId,
-              busInfo?.routeId,
-              busInfo?.stopsSequence,
-              newIndex
+              busInfo?.busDocId, driverUniqueId,
+              busInfo?.routeId, busInfo?.stopsSequence, newIndex
             ).then((res) => {
               if (res.success) {
                 setCurrentStopName(busInfo?.stopsSequence?.[newIndex]?.name);
                 setNextStopName(busInfo?.stopsSequence?.[newIndex + 1]?.name);
               }
             });
-
             return newIndex;
           });
         }, 10000);
@@ -189,7 +198,6 @@ const DriverDashboard = ({ route, navigation }) => {
           </View>
         </View>
 
-        {/* Current & Next Stop — only shown when GPS active */}
         {gpsActive && (
           <View style={styles.row}>
             <View>

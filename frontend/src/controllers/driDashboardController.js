@@ -2,6 +2,7 @@
 
 import {
   fetchBusInfo,
+  checkExistingSession,
   startGpsSession,
   stopGpsSession,
   updateBusLocation,
@@ -21,6 +22,17 @@ export const handleFetchBusInfo = async (driverUniqueId) => {
       return { success: false, error: "Bus not found. Contact admin." };
     console.error("fetchBusInfo error:", err);
     return { success: false, error: "Failed to load bus info." };
+  }
+};
+
+// ✅ Check if GPS session already active
+export const handleCheckExistingSession = async (driverUniqueId) => {
+  try {
+    const session = await checkExistingSession(driverUniqueId);
+    return { success: true, session };
+  } catch (err) {
+    console.error("checkSession error:", err);
+    return { success: true, session: null };
   }
 };
 
@@ -53,16 +65,14 @@ export const handleUpdateLocation = async (
 ) => {
   try {
     const result = await updateBusLocation(
-      busDocId,
-      driverUniqueId,
-      routeId,
-      stopsSequence,
-      currentStopIndex
+      busDocId, driverUniqueId, routeId, stopsSequence, currentStopIndex
     );
     return { success: true, ...result };
   } catch (err) {
     if (err.message === "LOCATION_PERMISSION_DENIED")
       return { success: false, error: "Location permission denied." };
+    if (err.message === "LOCATION_SERVICES_DISABLED")
+      return { success: false, error: "Please turn on Location/GPS in your phone settings." };
     console.error("updateLocation error:", err);
     return { success: false, error: "Failed to update location." };
   }
