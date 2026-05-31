@@ -51,7 +51,7 @@ export default function  DashBoard() {
       navigation.navigate("FeedbackScreen");
     }
   else if(btn.title === "Track bus") {
-      navigation.navigate("TrackSearch");
+      navigation.navigate("Trackbus");
     }
   }}
 >

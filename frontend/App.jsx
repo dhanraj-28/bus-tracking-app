@@ -24,7 +24,7 @@ import NotificationsPage from "./Components/Passenger/Notification";
 import PaymentScreen from "./Components/Passenger/PaymentScreen";
 import Route from "./Components/Passenger/Route";
 import SOSScreen from "./Components/Passenger/SOSScreen";
-import HomeScreen, { BusDetailScreen } from "./Components/Passenger/Trackbus";
+import HomeScreen, { BusDetailScreen } from "./Components/Passenger/TrackBus";
 import LiveMapPage from "./Components/Passenger/Tracking";
 import App3 from "./Components/Passenger/App3";
 import PassSuccessScreen from "./Components/Passenger/PassSuccessScreen";

@@ -3,10 +3,12 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "expo start",
+    "start": "expo start --offline --port 8081",
+    "start:online": "expo start --port 8081",
+    "stop-metro": "powershell -NoProfile -Command \"$ports=8081,8082,8083; foreach ($p in $ports) { Get-NetTCPConnection -LocalPort $p -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue } }\"",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "web": "expo start --web"
+    "web": "expo start --web --offline --port 8081"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -17,7 +19,8 @@
     "@react-native-picker/picker": "2.11.1",
     "@react-navigation/native": "^7.1.8",
     "@react-navigation/native-stack": "^7.3.16",
-    "axios": "^1.13.2",
+    "axios": "^1.16.1",
+    "cors": "^2.8.6",
     "expo": "~54.0.34",
     "expo-barcode-scanner": "~13.0.1",
     "expo-camera": "~17.0.10",
@@ -28,7 +31,9 @@
     "expo-linear-gradient": "~15.0.8",
     "expo-location": "~19.0.8",
     "expo-router": "~6.0.23",
+    "expo-sms": "~14.0.8",
     "expo-status-bar": "~3.0.9",
+    "express": "^5.2.1",
     "firebase": "^12.13.0",
     "react": "^19.1.0",
     "react-dom": "19.1.0",
