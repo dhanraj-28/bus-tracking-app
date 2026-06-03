@@ -34,10 +34,16 @@ let globalNextStop         = null;
 let globalDistance         = null;
 let globalBusInfo          = null;   // cached so re-mount doesn't overwrite
 let globalScannedBusData   = null;   // QR data cached so re-focus doesn't lose it
+let globalDriverName       = null;   // driver name cached so it never falls back to "Driver"
 
 const DriverDashboard = ({ route, navigation }) => {
   const driverUniqueId = route?.params?.driverUniqueId;
-  const driverName     = route?.params?.driver?.name || "Driver";
+
+  // Cache driver name on first arrival — persists across navigation
+  if (route?.params?.driver?.name && !globalDriverName) {
+    globalDriverName = route.params.driver.name;
+  }
+  const driverName = globalDriverName || "Driver";
 
   // Save QR data to global the first time we receive it
   if (route?.params?.busData && !globalScannedBusData) {
