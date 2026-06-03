@@ -27,7 +27,6 @@
         }
       },
       "permissions": [
-        "android.permission.CAMERA",
         "android.permission.CAMERA"
       ],
       "package": "com.anonymous.frontend"
@@ -38,9 +37,19 @@
     },
     "jsEngine": "jsc",
     "plugins": [
-      "expo-barcode-scanner",
       "expo-font",
-      "expo-router"
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow $(PRODUCT_NAME) to use your location."
+        }
+      ]
     ]
   }
 }

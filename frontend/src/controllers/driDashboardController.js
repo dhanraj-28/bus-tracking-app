@@ -3,15 +3,17 @@
 import {
   fetchBusInfo,
   checkExistingSession,
+  checkLocationServices,
   startGpsSession,
   stopGpsSession,
   updateBusLocation,
   getTodaySessionCount,
 } from "../services/driDashboardService";
 
-export const handleFetchBusInfo = async (driverUniqueId) => {
+// ✅ FIX: accepts optional qrRouteId so service uses QR's routeId for stops
+export const handleFetchBusInfo = async (driverUniqueId, qrRouteId = null) => {
   try {
-    const busInfo = await fetchBusInfo(driverUniqueId);
+    const busInfo = await fetchBusInfo(driverUniqueId, qrRouteId);
     return { success: true, busInfo };
   } catch (err) {
     if (err.message === "DRIVER_NOT_FOUND")
@@ -25,7 +27,14 @@ export const handleFetchBusInfo = async (driverUniqueId) => {
   }
 };
 
-// ✅ Check if GPS session already active
+export const handleCheckLocationServices = async () => {
+  try {
+    return await checkLocationServices();
+  } catch {
+    return { enabled: false };
+  }
+};
+
 export const handleCheckExistingSession = async (driverUniqueId) => {
   try {
     const session = await checkExistingSession(driverUniqueId);
@@ -36,9 +45,9 @@ export const handleCheckExistingSession = async (driverUniqueId) => {
   }
 };
 
-export const handleStartGps = async (driverUniqueId, busDocId) => {
+export const handleStartGps = async (driverUniqueId, busDocId, previousSeconds) => {
   try {
-    await startGpsSession(driverUniqueId, busDocId);
+    await startGpsSession(driverUniqueId, busDocId, Number(previousSeconds) || 0);
     return { success: true };
   } catch (err) {
     console.error("startGps error:", err);
@@ -48,7 +57,7 @@ export const handleStartGps = async (driverUniqueId, busDocId) => {
 
 export const handleStopGps = async (driverUniqueId, totalSeconds) => {
   try {
-    await stopGpsSession(driverUniqueId, totalSeconds);
+    await stopGpsSession(driverUniqueId, Number(totalSeconds) || 0);
     return { success: true };
   } catch (err) {
     console.error("stopGps error:", err);
@@ -57,22 +66,16 @@ export const handleStopGps = async (driverUniqueId, totalSeconds) => {
 };
 
 export const handleUpdateLocation = async (
-  busDocId,
-  driverUniqueId,
-  routeId,
-  stopsSequence,
-  currentStopIndex
+  busDocId, driverUniqueId, routeId, stopsSequence
 ) => {
   try {
-    const result = await updateBusLocation(
-      busDocId, driverUniqueId, routeId, stopsSequence, currentStopIndex
-    );
+    const result = await updateBusLocation(busDocId, driverUniqueId, routeId, stopsSequence);
     return { success: true, ...result };
   } catch (err) {
     if (err.message === "LOCATION_PERMISSION_DENIED")
       return { success: false, error: "Location permission denied." };
     if (err.message === "LOCATION_SERVICES_DISABLED")
-      return { success: false, error: "Please turn on Location/GPS in your phone settings." };
+      return { success: false, error: "LOCATION_OFF" };
     console.error("updateLocation error:", err);
     return { success: false, error: "Failed to update location." };
   }
