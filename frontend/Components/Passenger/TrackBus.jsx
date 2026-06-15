@@ -187,7 +187,7 @@ export default function HomeScreen() {
           <TouchableOpacity onPress={() => navigation.navigate("Dashboard")}>
             <Ionicons name="arrow-back" size={26} color="#fff" />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Track Bus</Text>
+          <Text style={styles.headerText}>Find Bus Route</Text>
           <View style={{ width: 26 }} />
         </View>
 
