@@ -16,6 +16,7 @@ export default function LiveBarTrack({
   stops = [],
   currentStopIndex = 0,
   onRefresh = () => {},
+  bus = {},
 }) {
   const busY = useRef(new Animated.Value(0)).current;
   const scrollRef = useRef(null);
@@ -40,15 +41,16 @@ const navigation = useNavigation();
     <View style={styles.container}>
       {/* LEFT */}
       <View style={styles.left}>
-        <Text style={styles.busNo}>5E</Text>
-        <Text style={styles.to}>To Amritsar</Text>
+        <Text style={styles.busNo}>{bus?.busNumber || bus?.busName || "N/A"}</Text>
+        <Text style={styles.to}>{bus?.destination ? `To ${bus.destination}` : (bus?.routeName || "")}</Text>
 
         <View style={styles.track}>
-          
-          <View style={styles.rail} />
-          
-
-          <ScrollView ref={scrollRef} showsVerticalScrollIndicator={false}>
+          <ScrollView 
+            ref={scrollRef} 
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 180 }}
+          >
+            <View style={styles.rail} />
             
             {stops.map((stop, index) => {
               const active = index === currentStopIndex;
@@ -84,9 +86,11 @@ const navigation = useNavigation();
         {/* LEFT TEXT */}
         <View style={styles.statusLeft}>
           <Text style={styles.statusText}>
-            {currentStopIndex === 0
-              ? `Bus not started from ${stops[0].name}`
-              : `Bus at ${stops[currentStopIndex].name}`}
+            {stops.length === 0
+              ? "No stops data available"
+              : currentStopIndex === 0
+              ? `Bus not started from ${stops[0]?.name || "origin"}`
+              : `Bus at ${stops[currentStopIndex]?.name || "current stop"}`}
           </Text>
           <Text style={styles.updated}>Updated few seconds ago</Text>
         </View>
@@ -138,9 +142,9 @@ const styles = StyleSheet.create({
   },
   rail: {
     position: "absolute",
-    left: 30,
+    left: 11,
     top: 35,
-    bottom: 10,
+    bottom: 0,
     width: 20,
     backgroundColor: "#E1D9F1",
     borderRadius: 6,
