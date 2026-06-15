@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,62 +7,97 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-
-
-const BusData = [
-  { id: "1", busNumber: "5E", routeName: "Avadi", destination: "Adayar", time: "8:10 AM" },
-  { id: "2", busNumber: "231B", routeName: "Tambaram", destination: "Guindy", time: "8:30 AM" },
-  { id: "3", busNumber: "24A", routeName: "Velachery", destination: "T Nagar", time: "8:45 AM" },
-  { id: "4", busNumber: "70", routeName: "Perambur", destination: "Ambattur", time: "9:00 AM" },
-  { id: "5", busNumber: "15D", routeName: "Anna Nagar", destination: "Avadi", time: "9:15 AM" },
-];
+import { getAllRoutes, searchBusesController } from "../../src/controllers/trackController";
 
 const TrackSearch = () => {
   const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredBuses, setFilteredBuses] = useState(BusData);
+  const [filteredBuses, setFilteredBuses] = useState([]);
+  const [allBuses, setAllBuses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleSearch = (text) => {
+  useEffect(() => {
+    const fetchAllBuses = async () => {
+      setLoading(true);
+      setErrorMsg("");
+      try {
+        const routes = await getAllRoutes();
+        setAllBuses(routes || []);
+        setFilteredBuses(routes || []);
+      } catch (error) {
+        console.error("Error fetching all buses:", error);
+        setErrorMsg(error.message || String(error));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAllBuses();
+  }, []);
+
+  const handleSearch = async (text) => {
     setSearchQuery(text);
-    const filtered = BusData.filter(
-      (bus) =>
-        bus.busNumber.toLowerCase().includes(text.toLowerCase()) ||
-        bus.routeName.toLowerCase().includes(text.toLowerCase())
-    );
-    setFilteredBuses(filtered);
+    if (!text.trim()) {
+      setFilteredBuses(allBuses);
+      return;
+    }
+    await searchBusesController(text, setFilteredBuses, setLoading);
   };
 
-const renderBusCard = ({ item }) => (
-  <TouchableOpacity
-    style={styles.card}
-    activeOpacity={0.8}
-    onPress={() => navigation.navigate("LiveTrack", { bus: item })}
-  >
-    <Ionicons
-      name="bus-outline"
-      size={26}
-      color="#6A5ACD"
-      style={{ marginRight: 10 }}
-    />
 
-    <View style={styles.middleSection}>
-      <Text style={styles.busNumber}>{item.busNumber}</Text>
-      <Text style={styles.routeName}>
-        {item.routeName} ➜ {item.destination}
-      </Text>
-      <Text style={styles.time}>{item.time}</Text>
-    </View>
+const getStopsCount = (item) => {
+  if (!item) return 0;
+  const fields = ["STOPS", "stops", "stoppings", "Stoppings", "stopping"];
+  for (const field of fields) {
+    if (item[field]) {
+      if (Array.isArray(item[field])) {
+        return item[field].length;
+      } else if (typeof item[field] === "object") {
+        return Object.keys(item[field]).length;
+      }
+    }
+  }
+  return 0;
+};
 
-    <Ionicons
-      name="chevron-forward"
-      size={22}
-      color="#6A5ACD"
-    />
-  </TouchableOpacity>
-);
+const renderBusCard = ({ item }) => {
+  const stopsCount = getStopsCount(item);
+  return (
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.8}
+      onPress={() => navigation.navigate("LiveTrack", { bus: item })}
+    >
+      <Ionicons
+        name="bus-outline"
+        size={26}
+        color="#6A5ACD"
+        style={{ marginRight: 10 }}
+      />
+
+      <View style={styles.middleSection}>
+        <Text style={styles.busNumber}>{item.busNumber || item.busName || "N/A"}</Text>
+        <Text style={styles.routeName}>
+          {item.routeName || "N/A"} ➜ {item.destination || item.endStop || "N/A"}
+        </Text>
+        {stopsCount > 0 && (
+          <Text style={styles.stopsCount}>📍 {stopsCount} Stops</Text>
+        )}
+        <Text style={styles.time}>{item.time || ""}</Text>
+      </View>
+
+      <Ionicons
+        name="chevron-forward"
+        size={22}
+        color="#6A5ACD"
+      />
+    </TouchableOpacity>
+  );
+};
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -86,7 +121,17 @@ const renderBusCard = ({ item }) => (
       </View>
 
       {/* Bus List */}
-      {filteredBuses.length > 0 ? (
+      {errorMsg ? (
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle-outline" size={50} color="#ff3b30" />
+          <Text style={styles.errorText}>Permission Error</Text>
+          <Text style={styles.errorHelp}>
+            Firestore Security Rules are blocking access to your routes collection. Please update your rules in the Firebase Console.
+          </Text>
+        </View>
+      ) : loading ? (
+        <ActivityIndicator size="large" color="#6A5ACD" style={{ marginTop: 50 }} />
+      ) : filteredBuses.length > 0 ? (
         <FlatList
           data={filteredBuses}
           keyExtractor={(item) => item.id}
@@ -169,6 +214,12 @@ const styles = StyleSheet.create({
     color: "#555",
     marginVertical: 4,
   },
+  stopsCount: {
+    fontSize: 13,
+    color: "#6A5ACD",
+    fontWeight: "600",
+    marginVertical: 2,
+  },
   time: {
     fontSize: 12,
     color: "#888",
@@ -185,6 +236,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#aaa",
     marginTop: 5,
+  },
+  errorContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 60,
+    paddingHorizontal: 20,
+  },
+  errorText: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#ff3b30",
+    marginTop: 10,
+  },
+  errorHelp: {
+    fontSize: 14,
+    color: "#555",
+    textAlign: "center",
+    marginTop: 8,
+    lineHeight: 20,
   },
 });
 
