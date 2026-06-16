@@ -27,7 +27,7 @@ import SOSScreen from "./Components/Passenger/SOSScreen";
 import HomeScreen, { BusDetailScreen } from "./Components/Passenger/Trackbus";
 import LiveMapPage from "./Components/Passenger/Tracking";
 import App3 from "./Components/Passenger/App3";
-
+import PassSuccessScreen from "./Components/Passenger/PassSuccessScreen";
 import Feedbackroute from "./Components/Passenger/feedback/feedbackroute";
 import PasstoPayment from "./Components/Passenger/passtopayment";
 import BusStopsNearMe from "./Components/Passenger/BusStopsNearMe";
@@ -98,6 +98,12 @@ export default function App() {
               <Stack.Screen name="LogoutScreen" component={LogoutScreen} />
                 <Stack.Screen name="MobileOTP" component={MobileOTP} />
                    <Stack.Screen name="OTPScreen" component={OtpScreen} />
+                   <Stack.Screen
+  name="PassSuccess"
+  component={PassSuccessScreen}
+  options={{ headerShown: false, gestureEnabled: false }}
+  // gestureEnabled: false → prevents swiping back to payment after success
+/>
               {/* add other screens later */}
             </Stack.Navigator>
 
