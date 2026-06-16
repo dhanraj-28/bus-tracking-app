@@ -18,9 +18,19 @@ require(
 "./routes/busStopRoutes"
 );
 
+const paymentHistoryRoutes =
+require(
+"./routes/paymentHistoryRoutes"
+);
+
 app.use(
 "/api/busstops",
 busRoutes
+);
+
+app.use(
+"/api/payments",
+paymentHistoryRoutes
 );
 
 app.listen(

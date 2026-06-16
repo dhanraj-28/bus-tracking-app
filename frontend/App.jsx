@@ -22,9 +22,11 @@ import App2 from "./Components/Driver/qrscanner/App2";
 import BuyBusPassScreen from "./Components/Passenger/BuyBusPassScreen";
 import NotificationsPage from "./Components/Passenger/Notification";
 import PaymentScreen from "./Components/Passenger/PaymentScreen";
+import PaymentHistoryScreen from "./Components/Passenger/PaymentHistoryScreen";
+import PaymentDetailScreen from "./Components/Passenger/PaymentDetailScreen";
 import Route from "./Components/Passenger/Route";
 import SOSScreen from "./Components/Passenger/SOSScreen";
-import HomeScreen, { BusDetailScreen } from "./Components/Passenger/TrackBus";
+import HomeScreen, { BusDetailScreen } from "./Components/Passenger/Trackbus";
 import LiveMapPage from "./Components/Passenger/Tracking";
 import App3 from "./Components/Passenger/App3";
 
@@ -83,6 +85,8 @@ export default function App() {
               <Stack.Screen name="IdentityVerification" component={IdentityVerification} />
               <Stack.Screen name="BuyBusPassScreen" component={BuyBusPassScreen} />
               <Stack.Screen name="PaymentScreen" component={PaymentScreen} />
+              <Stack.Screen name="PaymentHistoryScreen" component={PaymentHistoryScreen} />
+              <Stack.Screen name="PaymentDetailScreen" component={PaymentDetailScreen} />
               <Stack.Screen name="RegisterForm" component={RegisterForm} />
               <Stack.Screen name="QRScanner" component={QRScanner} />
               <Stack.Screen name="BusDetailsScreen" component={BusDetailsScreen} />

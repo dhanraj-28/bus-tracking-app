@@ -58,6 +58,12 @@ export default function MenuScreen({ navigation }) {
         />
 
         <MenuItem
+          icon={<MaterialIcons name="history" size={22} />}
+          label={t.paymentHistory}
+          onPress={() => navigation.navigate("PaymentHistoryScreen")}
+        />
+
+        <MenuItem
           icon={<Ionicons name="log-out-outline" size={22} />}
           label={t.logout}
           onPress={() => navigation.navigate("LogoutScreen")}

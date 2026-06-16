@@ -9,9 +9,10 @@ import {
   StatusBar,
   Alert,
   FlatList,
+  Linking,
+  Platform,
 } from "react-native";
 import * as Location from "expo-location";
-import * as SMS from "expo-sms";
 import {
   getDocs
 } from "firebase/firestore";
@@ -25,6 +26,21 @@ import {
 } from "firebase/firestore";
 
 import { db, auth } from "../../src/config/firebase";
+
+async function sendSOSMessage(numbers, textMessage) {
+  const body = encodeURIComponent(textMessage);
+  const recipients = numbers.join(",");
+  const url =
+    Platform.OS === "ios"
+      ? `sms:${recipients}&body=${body}`
+      : `sms:${recipients}?body=${body}`;
+
+  const canOpen = await Linking.canOpenURL(url);
+  if (!canOpen) {
+    throw new Error("SMS not available on this device");
+  }
+  await Linking.openURL(url);
+}
 
 const SOSScreen = () => {
   const navigation = useNavigation();
@@ -133,18 +149,10 @@ const SOSScreen = () => {
       `I need help immediately!\n` +
       `My location: ${locationLink}`;
 
-    // 6. Check SMS availability
-    const isAvailable = await SMS.isAvailableAsync();
+    // 6. Open SMS app with message and contacts
+    await sendSOSMessage(numbers, textMessage);
 
-    if (!isAvailable) {
-      Alert.alert("Error", "SMS not available on this device");
-      return;
-    }
-
-    // 7. Send SMS to all contacts
-    await SMS.sendSMSAsync(numbers, textMessage);
-
-    Alert.alert("Success", "SOS sent to all contacts");
+    Alert.alert("Success", "SMS app opened — tap Send to alert your contacts");
   } catch (error) {
     console.log(error);
     Alert.alert("Error", error.message);
