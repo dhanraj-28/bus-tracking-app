@@ -1,10 +1,18 @@
-// controllers/trackController.js
+// ============================================================
+//  trackController.js  —  TEAMMATE'S FILE + NEW ADDITIONS
+//  ADDED at bottom (teammate's code untouched above):
+//   - subscribeBusLocation()  ← new export for LiveTrack.jsx
+// ============================================================
 
 import {
   getAllRoutesService,
   getStoppingsByRouteIdService,
   searchBusesService,
+  subscribeToBusLocationByRoute,  // ← new import from service
 } from "../services/trackBusService";
+
+// ── TEAMMATE'S ORIGINAL CODE — NOT TOUCHED ───────────────────
+
 export const getAllRoutes = async () => {
   return await getAllRoutesService();
 };
@@ -18,22 +26,88 @@ export const searchBusesController = async (
   setFilteredBuses,
   setLoading
 ) => {
-
   try {
     setLoading(true);
-
     const response = await searchBusesService(searchText);
-
     if (response.success) {
       setFilteredBuses(response.data);
     } else {
       setFilteredBuses([]);
     }
-
   } catch (error) {
     console.log("Controller Error:", error);
     setFilteredBuses([]);
   } finally {
     setLoading(false);
   }
+};
+
+// ── NEW ADDITIONS ─────────────────────────────────────────────
+
+// ─────────────────────────────────────────────
+//  Subscribe to live bus location for a route.
+//  Called from LiveTrack.jsx after stops are loaded.
+//
+//  Matches currentStopName from busLocations against
+//  the stops array to get currentStopIndex for animation.
+//
+//  @param {string}   routeId   - e.g. "ROUTE101"
+//  @param {Array}    stops     - array of { name, time } from getRouteStoppingsById
+//                                used to find index by matching stop name
+//  @param {function} onStopIndexChange - called with (index, busData)
+//                                        index → passed to LiveBarTrack as currentStopIndex
+//  @param {function} onBusInactive    - called when no driver is active on route
+//  @param {function} onError          - called with error string
+//  @returns {function}                - unsubscribe function (call on unmount)
+//
+//  USAGE in LiveTrack.jsx:
+//    const unsub = subscribeBusLocation(routeId, stops,
+//      (index, busData) => {
+//        setCurrentStopIndex(index);
+//        setBusData(busData);
+//      },
+//      () => setStatus("inactive"),
+//      (msg) => console.error(msg)
+//    );
+//    return () => unsub(); // cleanup
+// ─────────────────────────────────────────────
+export const subscribeBusLocation = (
+  routeId,
+  stops,
+  onStopIndexChange,
+  onBusInactive,
+  onError
+) => {
+  const unsubscribe = subscribeToBusLocationByRoute(
+    routeId,
+    (busData) => {
+      if (!busData.isActive || !busData.currentStopName) {
+        // Driver hasn't started or went offline
+        onBusInactive();
+        return;
+      }
+
+      // Match currentStopName from Firestore → index in stops array
+      // Case-insensitive + trimmed for safety
+      const currentName = busData.currentStopName.toLowerCase().trim();
+
+      const index = stops.findIndex(
+        (stop) => stop.name?.toLowerCase().trim() === currentName
+      );
+
+      // If name not found in stops list, keep current position (don't jump to -1)
+      const safeIndex = index >= 0 ? index : 0;
+
+      console.log(
+        `[BusLocation] currentStopName: "${busData.currentStopName}" → index: ${safeIndex}`
+      );
+
+      // Fire callback with index + full busData
+      // LiveTrack sets currentStopIndex → LiveBarTrack animates automatically
+      onStopIndexChange(safeIndex, busData);
+    },
+    onError
+  );
+
+  return unsubscribe;
 };

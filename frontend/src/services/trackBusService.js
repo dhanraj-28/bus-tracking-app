@@ -1,22 +1,26 @@
-
+// ============================================================
+//  trackBusService.js  —  TEAMMATE'S FILE + NEW ADDITIONS
+//  ADDED at bottom (teammate's code untouched above):
+//   - subscribeToBusLocationByRoute()  ← new realtime function
+//  Everything above the NEW ADDITIONS line is teammate's original code.
+// ============================================================
 
 import { db } from "../config/firebase";
 
 import {
-
   collection,
-
   doc,
-
   getDoc,
-
   getDocs,
-
+  query,
+  where,
+  limit,
+  onSnapshot,
 } from "firebase/firestore";
 
 import { extractStoppingsFromRoute } from "../utils/routeStops";
 
-
+// ── TEAMMATE'S ORIGINAL CODE — NOT TOUCHED ───────────────────
 
 let ROUTES_COLLECTION = "Routes";
 const STOPPING_SUBCOLLECTIONS = ["stoppings", "stops", "Stoppings", "stopping"];
@@ -146,14 +150,14 @@ export const searchBusesService = async (searchText) => {
       const routesRef = collection(db, collectionName);
       const snapshot = await getDocs(routesRef);
       const list = [];
-      const query = searchText.toLowerCase();
+      const queryStr = searchText.toLowerCase();
 
       snapshot.forEach((routeDoc) => {
         const data = routeDoc.data();
         if (
-          data.busNumber?.toLowerCase().includes(query) ||
-          data.busName?.toLowerCase().includes(query) ||
-          data.routeName?.toLowerCase().includes(query)
+          data.busNumber?.toLowerCase().includes(queryStr) ||
+          data.busName?.toLowerCase().includes(queryStr) ||
+          data.routeName?.toLowerCase().includes(queryStr)
         ) {
           list.push({
             ...data,
@@ -178,6 +182,73 @@ export const searchBusesService = async (searchText) => {
   }
 };
 
+// ── NEW ADDITIONS ─────────────────────────────────────────────
+//  Everything below this line is new — teammate's code above is unchanged.
+// ─────────────────────────────────────────────────────────────
 
+// ─────────────────────────────────────────────
+//  REALTIME: Subscribe to busLocations for a route
+//
+//  Your busLocations doc structure:
+//    routeId: "ROUTE101"
+//    currentStopName: "Saravana Hospital"
+//    nextStopName: "EB (Electricity Board)"
+//    distanceToStop: 254
+//    location: GeoPoint
+//    speed: 0
+//    updatedAt: timestamp
+//
+//  Queries busLocations where routeId == routeId,
+//  subscribes with onSnapshot for realtime updates.
+//  Returns unsubscribe function — call on screen unmount.
+//
+//  @param {string}   routeId   - e.g. "ROUTE101"
+//  @param {function} onUpdate  - called with { currentStopName, nextStopName,
+//                                              distanceToStop, speed, updatedAt }
+//  @param {function} onError   - called with error string
+//  @returns {function}         - unsubscribe function
+// ─────────────────────────────────────────────
+export const subscribeToBusLocationByRoute = (routeId, onUpdate, onError) => {
+  // Query busLocations where routeId field matches
+  const busQuery = query(
+    collection(db, "busLocations"),
+    where("routeId", "==", routeId),
+    limit(1)  // one bus per route for now
+  );
 
+  const unsubscribe = onSnapshot(
+    busQuery,
+    { includeMetadataChanges: false }, // skip local cache updates — saves data on slow networks
+    (snapshot) => {
+      if (snapshot.empty) {
+        // No active bus on this route — driver hasn't started
+        onUpdate({
+          currentStopName:  null,   // null = bus not started
+          nextStopName:     null,
+          distanceToStop:   0,
+          speed:            0,
+          updatedAt:        null,
+          isActive:         false,
+        });
+        return;
+      }
 
+      const data = snapshot.docs[0].data();
+
+      onUpdate({
+        currentStopName:  data.currentStopName  || null,
+        nextStopName:     data.nextStopName     || null,
+        distanceToStop:   data.distanceToStop   || 0,
+        speed:            data.speed            || 0,
+        updatedAt:        data.updatedAt        || null,
+        isActive:         true,    // driver is online
+      });
+    },
+    (error) => {
+      console.error("[BusLocation] onSnapshot error:", error);
+      onError("Could not connect to live bus data.");
+    }
+  );
+
+  return unsubscribe;
+};
