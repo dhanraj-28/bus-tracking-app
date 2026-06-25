@@ -42,7 +42,7 @@ const saveRecentSearch = async (from, to, buses, distance) => {
   history = history.filter(
     (item) =>
       item.from.toLowerCase() !== from.toLowerCase() ||
-      item.to.toLowerCase() !== to.toLowerCase()
+      item.to.toLowerCase() !== to.toLowerCase(),
   );
   history.unshift(entry);
   history = history.slice(0, MAX_RECENT_SEARCHES);
@@ -127,7 +127,7 @@ export default function HomeScreen() {
       return () => {
         active = false;
       };
-    }, [showPreviousSearches])
+    }, [showPreviousSearches]),
   );
 
   useEffect(() => {
@@ -152,12 +152,12 @@ export default function HomeScreen() {
             from.trim(),
             to.trim(),
             result.buses,
-            result.buses[0]?.distance ?? null
+            result.buses[0]?.distance ?? null,
           );
         } else {
           setError(
             result.message ||
-              `No bus found for "${from.trim()}" to "${to.trim()}". Use exact stop names.`
+              `No bus found for "${from.trim()}" to "${to.trim()}". Use exact stop names.`,
           );
         }
       } else {
@@ -174,10 +174,10 @@ export default function HomeScreen() {
   }, [from, to]);
 
   const filteredFromSuggestions = startStops.filter((place) =>
-    place.toLowerCase().includes(from.toLowerCase())
+    place.toLowerCase().includes(from.toLowerCase()),
   );
   const filteredToSuggestions = endStops.filter((place) =>
-    place.toLowerCase().includes(to.toLowerCase())
+    place.toLowerCase().includes(to.toLowerCase()),
   );
 
   return (
@@ -240,25 +240,27 @@ export default function HomeScreen() {
             onSubmitEditing={() => setShowToSuggestions(false)}
           />
 
-          {showToSuggestions && to.length > 0 && filteredToSuggestions.length > 0 && (
-            <FlatList
-              style={[styles.suggestionList, { zIndex: 5 }]}
-              data={filteredToSuggestions}
-              keyExtractor={(item, index) => index.toString()}
-              keyboardShouldPersistTaps="handled"
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.suggestionItem}
-                  onPress={() => {
-                    setTo(item);
-                    setShowToSuggestions(false);
-                  }}
-                >
-                  <Text>{item}</Text>
-                </TouchableOpacity>
-              )}
-            />
-          )}
+          {showToSuggestions &&
+            to.length > 0 &&
+            filteredToSuggestions.length > 0 && (
+              <FlatList
+                style={[styles.suggestionList, { zIndex: 5 }]}
+                data={filteredToSuggestions}
+                keyExtractor={(item, index) => index.toString()}
+                keyboardShouldPersistTaps="handled"
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.suggestionItem}
+                    onPress={() => {
+                      setTo(item);
+                      setShowToSuggestions(false);
+                    }}
+                  >
+                    <Text>{item}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+            )}
         </View>
 
         <Text style={styles.headerText}>
@@ -268,14 +270,22 @@ export default function HomeScreen() {
       </View>
 
       {loading && (
-        <ActivityIndicator size="large" color="#7A73D1" style={{ marginTop: 24 }} />
+        <ActivityIndicator
+          size="large"
+          color="#7A73D1"
+          style={{ marginTop: 24 }}
+        />
       )}
 
       {error && <Text style={styles.errorText}>{error}</Text>}
 
       <View style={styles.listWrapper}>
         {searching && !loading && (
-          <ActivityIndicator size="small" color="#7A73D1" style={{ marginTop: 12 }} />
+          <ActivityIndicator
+            size="small"
+            color="#7A73D1"
+            style={{ marginTop: 12 }}
+          />
         )}
 
         {!loading && filteredBuses.length > 0 ? (
@@ -288,7 +298,22 @@ export default function HomeScreen() {
             renderItem={({ item }) => (
               <TouchableOpacity
                 style={styles.card}
-                onPress={() => navigation.navigate("LiveTrack", { bus: item })}
+                // AFTER
+                onPress={() =>
+                  navigation.navigate("LiveTrack", {
+                    bus: {
+                      ...item,
+                      // Safety net: covers stale AsyncStorage entries saved before the service fix
+                      busName:
+                        item.busName ||
+                        item.number ||
+                        item.busNumber ||
+                        item.routeName ||
+                        item.routeId ||
+                        "Bus",
+                    },
+                  })
+                }
               >
                 <Text style={styles.busNumber}>Bus Number: {item.number}</Text>
                 <View style={styles.routeRow}>
@@ -313,7 +338,11 @@ export default function HomeScreen() {
               </TouchableOpacity>
             )}
           />
-        ) : !loading && from.trim() && to.trim() && !isPreviousView && !error ? (
+        ) : !loading &&
+          from.trim() &&
+          to.trim() &&
+          !isPreviousView &&
+          !error ? (
           <Text style={styles.noBusText}>No buses found for this route.</Text>
         ) : null}
       </View>
@@ -327,8 +356,12 @@ export function BusDetailScreen({ route }) {
   return (
     <View style={styles.detailContainer}>
       <Text style={styles.detailTitle}>Bus Number: {number}</Text>
-      {busNumber ? <Text style={styles.detailText}>Plate: {busNumber}</Text> : null}
-      {routeName ? <Text style={styles.detailText}>Route: {routeName}</Text> : null}
+      {busNumber ? (
+        <Text style={styles.detailText}>Plate: {busNumber}</Text>
+      ) : null}
+      {routeName ? (
+        <Text style={styles.detailText}>Route: {routeName}</Text>
+      ) : null}
       <Text style={styles.detailText}>From: {from}</Text>
       <Text style={styles.detailText}>To: {to}</Text>
       {distance != null ? (
@@ -347,7 +380,12 @@ const styles = StyleSheet.create({
     padding: 30,
     alignItems: "center",
   },
-  headerText: { color: "#fff", fontSize: 22, fontWeight: "bold", marginBottom: 6 },
+  headerText: {
+    color: "#fff",
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 6,
+  },
   input: {
     backgroundColor: "#fff",
     borderRadius: 10,
@@ -401,6 +439,16 @@ const styles = StyleSheet.create({
   detailContainer: { flex: 1, padding: 24 },
   detailTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 12 },
   detailText: { fontSize: 16, marginBottom: 8, color: "#333" },
-  noBusText: { textAlign: "center", marginTop: 50, fontSize: 16, color: "#999" },
-  errorText: { textAlign: "center", marginTop: 12, fontSize: 14, color: "#c00" },
+  noBusText: {
+    textAlign: "center",
+    marginTop: 50,
+    fontSize: 16,
+    color: "#999",
+  },
+  errorText: {
+    textAlign: "center",
+    marginTop: 12,
+    fontSize: 14,
+    color: "#c00",
+  },
 });

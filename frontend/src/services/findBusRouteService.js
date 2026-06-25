@@ -74,15 +74,25 @@ function getBusRouteId(busData) {
   return busData.routeId || busData.routeID || busData.RouteId || null;
 }
 
+// AFTER
 function mapRouteAndBus(routeDoc, busDoc) {
   const routeData = routeDoc.data();
   const busData = busDoc?.data() ?? {};
   const stops = extractStopsFromRoute(routeData);
 
+  // Resolve display name — covers all possible Firestore field variations
+  const resolvedName =
+    routeData.busName ||
+    busData.busName ||
+    busData.busNumber ||
+    routeData.routeName ||
+    routeDoc.id;
+
   return {
     id: busDoc?.id ?? routeDoc.id,
     routeId: routeDoc.id,
-    number: routeData.busName || busData.busNumber || routeDoc.id,
+    number: resolvedName,      // keeps your HomeScreen card working (Bus Number: {item.number})
+    busName: resolvedName,     // ← THIS is what LiveBarTrack reads — was missing entirely
     busNumber: busData.busNumber ?? null,
     routeName: routeData.routeName ?? null,
     from: getStartStop(routeData),
@@ -93,7 +103,6 @@ function mapRouteAndBus(routeDoc, busDoc) {
     driverId: busData.driverId ?? null,
   };
 }
-
 export const fetchAllRoutesService = async () => {
   try {
     const snapshot = await getDocs(collection(db, ROUTES_COLLECTION));
