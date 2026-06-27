@@ -81,8 +81,9 @@ const renderBusCard = ({ item }) => {
 
       <View style={styles.middleSection}>
         <Text style={styles.busNumber}>{item.busNumber || item.busName || "N/A"}</Text>
-        <Text style={styles.routeName}>
-          {item.routeName || "N/A"} ➜ {item.destination || item.endStop || "N/A"}
+        <Text style={styles.routeName}>{item.routeName || "N/A"}</Text>
+        <Text style={styles.routeStops}>
+          {item.startStop || item.from || "—"} → {item.endStop || item.destination || "—"}
         </Text>
         {stopsCount > 0 && (
           <Text style={styles.stopsCount}>📍 {stopsCount} Stops</Text>
@@ -212,7 +213,13 @@ const styles = StyleSheet.create({
   routeName: {
     fontSize: 14,
     color: "#555",
+    marginTop: 4,
+  },
+  routeStops: {
+    fontSize: 13,
+    color: "#6A5ACD",
     marginVertical: 4,
+    fontWeight: "600",
   },
   stopsCount: {
     fontSize: 13,

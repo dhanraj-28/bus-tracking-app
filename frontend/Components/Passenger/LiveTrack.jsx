@@ -1,17 +1,4 @@
-// ============================================================
-//  LiveTrack.jsx
-//  CHANGES FROM TEAMMATE'S ORIGINAL:
-//   1. Added subscribeBusLocation() call after stops load
-//   2. currentStopIndex now driven by live busLocations data
-//      (was always 0 before — that's why bus icon never moved)
-//   3. Added busData state for status bar info
-//   4. Added busStatus state: "loading" | "inactive" | "active"
-//   5. Cleanup: unsubscribe on unmount to prevent memory leak
-//   6. Added updatedAt display in status (shows "X seconds ago")
-//   Everything else (UI, styles, header, LiveBarTrack props) UNCHANGED.
-// ============================================================
-
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -23,134 +10,66 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import LiveBarTrack from "./LiveBarTrack";
 import { useNavigation } from "@react-navigation/native";
-import {
-  getRouteStoppingsById,
-  subscribeBusLocation,         // ← new import
-} from "../../src/controllers/trackController";
+import { useLiveBusTracking } from "../../src/hooks/useLiveBusTracking";
 
 export default function LiveTrack({ route }) {
   const navigation = useNavigation();
   const { bus } = route?.params || {};
+  const routeId = bus?.id || bus?.routeId;
+  const busNumber = bus?.busNumber || bus?.busName || bus?.number;
 
-  const [stops, setStops]                   = useState([]);
-  const [currentStopIndex, setCurrentStopIndex] = useState(0);
-  const [loading, setLoading]               = useState(true);
-  const [busData, setBusData]               = useState(null);      // ← new
-  const [busStatus, setBusStatus]           = useState("loading"); // ← new: "loading"|"inactive"|"active"
+  const tracking = useLiveBusTracking(routeId, busNumber);
+  const {
+    loading,
+    route: routeData,
+    stops,
+    currentIndex,
+    currentStopName,
+    nextStopName,
+    busLocation,
+    updatedText,
+    busStatus,
+    error,
+    distances,
+    etaMinutes,
+    timeToNext,
+    isMoving,
+  } = tracking;
 
-  // ── Keep unsubscribe ref so we can clean up on unmount ───────
-  const unsubscribeRef = useRef(null);
+  const refreshRef = useRef(0);
 
-  // ── Fetch stops (unchanged from teammate's logic) ────────────
-  const fetchStops = async () => {
-    console.log("[LiveTrack] Selected bus:", bus);
-
-    if (!bus?.id && !bus?.routeId) {
-      console.log("[LiveTrack] No bus ID found in params!");
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const routeId = bus.id || bus.routeId;
-      const result  = await getRouteStoppingsById(routeId);
-
-      console.log("[LiveTrack] Fetch result for route ID:", routeId, result);
-
-      if (result) {
-        const loadedStops = result.stoppings || [];
-        setStops(loadedStops);
-
-        // ── NEW: Start realtime bus location subscription ──────
-        // Only start after stops are loaded so we can match stop names → index
-        startBusTracking(routeId, loadedStops);
-      }
-    } catch (error) {
-      console.error("Error fetching stops:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ── NEW: Start realtime tracking ─────────────────────────────
-  const startBusTracking = (routeId, loadedStops) => {
-    // Clean up any existing subscription first (handles refresh case)
-    if (unsubscribeRef.current) {
-      unsubscribeRef.current();
-      unsubscribeRef.current = null;
-    }
-
-    const unsub = subscribeBusLocation(
-      routeId,
-      loadedStops,
-
-      // ✅ Bus is active — update index and data
-      (index, liveData) => {
-        setCurrentStopIndex(index);   // → LiveBarTrack animates bus icon automatically
-        setBusData(liveData);
-        setBusStatus("active");
-      },
-
-      // 🚫 No active driver on this route
-      () => {
-        setCurrentStopIndex(0);       // bus stays at start
-        setBusStatus("inactive");
-      },
-
-      // ❌ Error
-      (msg) => {
-        console.error("[LiveTrack] Tracking error:", msg);
-        setBusStatus("inactive");
-      }
-    );
-
-    unsubscribeRef.current = unsub;
-  };
-
-  // ── On mount: fetch stops (subscription starts inside fetchStops) ─
-  useEffect(() => {
-    fetchStops();
-
-    // ── Cleanup on unmount ──────────────────────────────────────
-    // This stops the Firestore listener when user goes back
-    return () => {
-      if (unsubscribeRef.current) {
-        unsubscribeRef.current();
-        unsubscribeRef.current = null;
-        console.log("[LiveTrack] Unsubscribed from bus location ✅");
-      }
-    };
-  }, [bus]);
-
-  // ── Refresh: re-fetch stops + restart subscription ───────────
   const handleRefresh = () => {
-    fetchStops();
+    refreshRef.current += 1;
+    navigation.replace("LiveTrack", {
+      bus: { ...bus, _refresh: refreshRef.current },
+    });
   };
 
-  // ── Format updatedAt timestamp → "X seconds ago" ─────────────
-  const getUpdatedText = () => {
-    if (!busData?.updatedAt) return "Updated few seconds ago";
-    try {
-      const updatedDate = busData.updatedAt.toDate
-        ? busData.updatedAt.toDate()
-        : new Date(busData.updatedAt);
-      const seconds = Math.floor((Date.now() - updatedDate.getTime()) / 1000);
-      if (seconds < 10)  return "Updated just now";
-      if (seconds < 60)  return `Updated ${seconds}s ago`;
-      if (seconds < 120) return "Updated 1 min ago";
-      return `Updated ${Math.floor(seconds / 60)} mins ago`;
-    } catch {
-      return "Updated few seconds ago";
-    }
+  const busData = busLocation
+    ? {
+        currentStopName,
+        nextStopName,
+        speed: busLocation.speed,
+        updatedAt: busLocation.updatedAt,
+        latitude: busLocation.latitude,
+        longitude: busLocation.longitude,
+      }
+    : null;
+
+  const enrichedBus = {
+    ...bus,
+    busNumber: busNumber || routeData?.busName,
+    busName: busNumber || routeData?.busName,
+    routeName: routeData?.routeName || bus.routeName,
+    destination: routeData?.endStop || bus.destination || bus.to,
+    startStop: routeData?.startStop || bus.from,
+    endStop: routeData?.endStop || bus.to,
   };
 
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="dark-content" backgroundColor="#fff" />
 
-      {/* HEADER — UNCHANGED */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
           <Text style={styles.back}>←</Text>
@@ -158,44 +77,49 @@ export default function LiveTrack({ route }) {
         <Text style={styles.title}>Track Bus</Text>
       </View>
 
-      {/* LIVE BAR TRACK — UNCHANGED */}
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+
       {loading ? (
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <View style={styles.center}>
           <ActivityIndicator size="large" color="#6e42a6" />
         </View>
       ) : (
         <LiveBarTrack
           stops={stops}
-          currentStopIndex={currentStopIndex}   // ← now driven by live data
+          currentStopIndex={currentIndex}
           onRefresh={handleRefresh}
-          bus={bus}
-          updatedText={getUpdatedText()}         // ← pass formatted time to LiveBarTrack
-          busStatus={busStatus}                  // ← "active" | "inactive" | "loading"
-          busData={busData}                      // ← full bus data if needed
+          bus={enrichedBus}
+          updatedText={updatedText}
+          busStatus={busStatus}
+          busData={busData}
+          etaMinutes={etaMinutes}
+          remainingKm={distances?.remainingKm}
+          timeToNext={timeToNext}
+          isMoving={isMoving}
+          currentStopName={currentStopName}
+          nextStopName={nextStopName}
         />
       )}
     </SafeAreaView>
   );
 }
 
-// ── Styles — UNCHANGED ────────────────────────────────────────
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: "#fff",
-  },
+  safe: { flex: 1, backgroundColor: "#fff" },
   header: {
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
-  back: {
-    fontSize: 36,
-    marginRight: 10,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: "800",
+  back: { fontSize: 36, marginRight: 10 },
+  title: { fontSize: 20, fontWeight: "800" },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+  error: {
+    color: "#c00",
+    textAlign: "center",
+    paddingHorizontal: 16,
+    paddingBottom: 8,
+    fontSize: 13,
   },
 });

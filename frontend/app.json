@@ -13,7 +13,10 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyD4-Ak2V40T6o3rsj3PTH1gyPsnLfsB8Kk"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +26,7 @@
       "edgeToEdgeEnabled": true,
       "config": {
         "googleMaps": {
-          "apiKey": "YOUR_GOOGLE_API_KEY"
+          "apiKey": "AIzaSyD4-Ak2V40T6o3rsj3PTH1gyPsnLfsB8Kk"
         }
       },
       "permissions": [

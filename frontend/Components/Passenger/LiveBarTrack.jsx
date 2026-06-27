@@ -37,6 +37,12 @@ export default function LiveBarTrack({
   updatedText = "Updated few seconds ago",
   busStatus = "inactive",
   busData = null,
+  etaMinutes = 0,
+  remainingKm = 0,
+  timeToNext = null,
+  isMoving = false,
+  currentStopName = "",
+  nextStopName = "",
 }) {
   const navigation = useNavigation();
   const { width, height } = useWindowDimensions();
@@ -83,16 +89,17 @@ export default function LiveBarTrack({
     return () => loop.stop();
   }, [busStatus]);
 
+  const nextIndex = Math.min(currentStopIndex + 1, stops.length - 1);
+  const displayCurrent = currentStopName || stops[currentStopIndex]?.name || "—";
+  const displayNext = nextStopName || stops[nextIndex]?.name || "—";
+
   const getStatusText = () => {
     if (stops.length === 0) return "No stops data available";
-    if (busStatus === "active" && busData?.currentStopName) {
-      const speed = busData.speed > 0 ? ` • ${busData.speed} km/h` : "";
-      return `Bus at ${busData.currentStopName}${speed}`;
+    if (busStatus === "active") {
+      const moveLabel = isMoving ? "Moving" : "Stopped";
+      return `${moveLabel} • Near ${displayCurrent}`;
     }
-    if (currentStopIndex === 0) {
-      return `Bus not started from ${stops[0]?.name || "origin"}`;
-    }
-    return `Bus at ${stops[currentStopIndex]?.name || "current stop"}`;
+    return `Waiting at ${stops[0]?.name || "origin"}`;
   };
 
   return (
@@ -104,16 +111,56 @@ export default function LiveBarTrack({
           <Text style={[styles.busNo, { fontSize: 30 * fontScale }]}>
             {bus?.busNumber || bus?.busName || "N/A"}
           </Text>
-          {busStatus === "active" && (
-            <View style={styles.liveBadge}>
-              <View style={styles.liveDot} />
-              <Text style={styles.liveBadgeText}>LIVE</Text>
-            </View>
-          )}
+          <View style={styles.headerBadges}>
+            {busStatus === "active" && (
+              <View style={styles.liveBadge}>
+                <View style={styles.liveDot} />
+                <Text style={styles.liveBadgeText}>LIVE</Text>
+              </View>
+            )}
+            {busStatus === "active" && (
+              <View style={[styles.moveBadge, isMoving ? styles.moveOn : styles.moveOff]}>
+                <Text style={styles.moveBadgeText}>{isMoving ? "Moving" : "Stopped"}</Text>
+              </View>
+            )}
+          </View>
         </View>
         <Text style={[styles.to, { fontSize: 15 * fontScale }]}>
-          {bus?.destination ? `To ${bus.destination}` : (bus?.routeName || "")}
+          {bus?.destination ? `To ${bus.destination}` : bus?.routeName || ""}
         </Text>
+
+        {/* Realtime stats strip */}
+        <View style={styles.statsStrip}>
+          <View style={styles.statItem}>
+            <Text style={styles.statLabel}>Current</Text>
+            <Text style={styles.statValue} numberOfLines={1}>{displayCurrent}</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statLabel}>Next</Text>
+            <Text style={styles.statValue} numberOfLines={1}>{displayNext}</Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statLabel}>ETA</Text>
+            <Text style={styles.statValue}>
+              {etaMinutes > 0 ? `${etaMinutes} min` : "—"}
+            </Text>
+          </View>
+          <View style={styles.statDivider} />
+          <View style={styles.statItem}>
+            <Text style={styles.statLabel}>Left</Text>
+            <Text style={styles.statValue}>
+              {remainingKm > 0 ? `${remainingKm.toFixed(1)} km` : "—"}
+            </Text>
+          </View>
+        </View>
+        {timeToNext?.etaMinutes > 0 && (
+          <Text style={styles.nextEta}>
+            {timeToNext.etaMinutes} min to next stop
+            {timeToNext.distanceKm != null ? ` (${timeToNext.distanceKm.toFixed(1)} km)` : ""}
+          </Text>
+        )}
       </View>
 
       {/* ── Stop timeline ── */}
@@ -148,6 +195,7 @@ export default function LiveBarTrack({
           {stops.map((stop, index) => {
             const passed = index < currentStopIndex;
             const active = index === currentStopIndex;
+            const isNext = index === currentStopIndex + 1;
             return (
               <View key={index} style={[styles.stopRow, { height: ITEM_HEIGHT }]}>
                 <View
@@ -156,9 +204,13 @@ export default function LiveBarTrack({
                     { width: dotSize, height: dotSize, borderRadius: dotSize / 2, left: railLeft - dotSize / 2 },
                     passed && styles.passedDot,
                     active && styles.activeDot,
+                    isNext && styles.nextDot,
                   ]}
                 >
                   {passed && <Ionicons name="checkmark" size={dotSize * 0.55} color="#fff" />}
+                  {active && busStatus === "active" && (
+                    <Text style={{ fontSize: dotSize * 0.42 }}>🚌</Text>
+                  )}
                 </View>
 
                 <View style={[styles.stopTextWrap, { marginLeft: railLeft + dotSize / 2 + 8 }]}>
@@ -167,10 +219,12 @@ export default function LiveBarTrack({
                       styles.stopName,
                       { fontSize: 14.5 * fontScale },
                       active && styles.stopNameActive,
+                      isNext && styles.stopNameNext,
                     ]}
-                    numberOfLines={1}
+                    numberOfLines={2}
                   >
                     {stop.name}
+                    {isNext ? "  (Next)" : ""}
                   </Text>
                   {!!stop.time && (
                     <Text style={[styles.time, { fontSize: 12 * fontScale }]}>{stop.time}</Text>
@@ -233,7 +287,15 @@ export default function LiveBarTrack({
         <View style={styles.statusRight}>
           <TouchableOpacity
             style={styles.liveBtn}
-            onPress={() => navigation.navigate("Tracking")}
+            onPress={() =>
+              navigation.navigate("Tracking", {
+                bus: {
+                  ...bus,
+                  routeId: bus.routeId || bus.id,
+                  busNumber: bus.busNumber || bus.busName || bus.number,
+                },
+              })
+            }
             activeOpacity={0.8}
           >
             <Text style={styles.liveText}>LIVE MAP</Text>
@@ -306,6 +368,62 @@ const styles = StyleSheet.create({
     color: "#DC2626",
     letterSpacing: 0.5,
   },
+  headerBadges: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  moveBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 20,
+  },
+  moveOn: {
+    backgroundColor: "#DCFCE7",
+  },
+  moveOff: {
+    backgroundColor: "#F3F4F6",
+  },
+  moveBadgeText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#374151",
+  },
+  statsStrip: {
+    flexDirection: "row",
+    marginTop: 14,
+    backgroundColor: "#F8F6FC",
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+  },
+  statItem: {
+    flex: 1,
+    alignItems: "center",
+    minWidth: 0,
+  },
+  statLabel: {
+    fontSize: 10,
+    color: "#999",
+    fontWeight: "600",
+  },
+  statValue: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: "#333",
+    marginTop: 2,
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: "#E5E0EF",
+    marginVertical: 2,
+  },
+  nextEta: {
+    fontSize: 12,
+    color: "#6e42a6",
+    fontWeight: "600",
+    marginTop: 8,
+  },
 
   // ── Track / timeline ──
   track: {
@@ -357,6 +475,10 @@ const styles = StyleSheet.create({
     borderColor: "#7E57C2",
     borderWidth: 4,
   },
+  nextDot: {
+    borderColor: "#F59E0B",
+    borderWidth: 3,
+  },
   stopTextWrap: {
     flex: 1,
     justifyContent: "center",
@@ -368,6 +490,10 @@ const styles = StyleSheet.create({
   stopNameActive: {
     color: "#7E57C2",
     fontWeight: "800",
+  },
+  stopNameNext: {
+    color: "#D97706",
+    fontWeight: "700",
   },
   time: {
     color: "#9B9B9B",
