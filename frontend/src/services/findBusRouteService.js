@@ -14,8 +14,10 @@ const BUS_LOCATIONS_COLLECTION = "busLocations";
 export function extractStopsFromRoute(routeData) {
   if (!routeData) return [];
 
+  let stops = [];
+
   if (routeData.STOPS && typeof routeData.STOPS === "object") {
-    return Object.keys(routeData.STOPS)
+    stops = Object.keys(routeData.STOPS)
       .sort((a, b) => {
         const numA = parseInt(a.replace(/\D/g, ""), 10) || 0;
         const numB = parseInt(b.replace(/\D/g, ""), 10) || 0;
@@ -23,20 +25,24 @@ export function extractStopsFromRoute(routeData) {
       })
       .map((key) => routeData.STOPS[key])
       .filter(Boolean);
+  } else {
+    for (let i = 1; i <= 20; i++) {
+      const stop = routeData[`stop${i}`];
+      if (stop) stops.push(stop);
+    }
   }
 
-  const stops = [];
-  if (routeData.startStop) stops.push(routeData.startStop);
-
-  for (let i = 2; i <= 20; i++) {
-    const stop = routeData[`stop${i}`];
-    if (stop) stops.push(stop);
+  if (routeData.startStop) {
+    const start = routeData.startStop.trim();
+    if (stops[0]?.toLowerCase().trim() !== start.toLowerCase()) {
+      stops.unshift(start);
+    }
   }
 
   if (routeData.endStop) {
-    const last = stops[stops.length - 1];
-    if (last?.toLowerCase() !== routeData.endStop.toLowerCase()) {
-      stops.push(routeData.endStop);
+    const end = routeData.endStop.trim();
+    if (stops[stops.length - 1]?.toLowerCase().trim() !== end.toLowerCase()) {
+      stops.push(end);
     }
   }
 

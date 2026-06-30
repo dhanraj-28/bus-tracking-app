@@ -8,7 +8,9 @@ import {
   getAllRoutesService,
   getStoppingsByRouteIdService,
   searchBusesService,
-  subscribeToBusLocationByRoute,  // ← new import from service
+  subscribeToBusLocationByRoute,
+  getCurrentBusLocationByRoute,    // ← new import
+  getStopCoordinatesService,      // ← new import
 } from "../services/trackBusService";
 
 // ── TEAMMATE'S ORIGINAL CODE — NOT TOUCHED ───────────────────
@@ -44,6 +46,30 @@ export const searchBusesController = async (
 
 // ── NEW ADDITIONS ─────────────────────────────────────────────
 
+export const getCompleteRoute = async (routeId) => {
+  const result = await getRouteStoppingsById(routeId);
+  if (result && result.stoppings) {
+    return result.stoppings;
+  }
+  return [];
+};
+
+export const getCurrentBusLocation = async (routeId) => {
+  const result = await getCurrentBusLocationByRoute(routeId);
+  if (result.success) {
+    return result.busLocation;
+  }
+  return null;
+};
+
+export const getStopCoordinates = async () => {
+  const result = await getStopCoordinatesService();
+  if (result.success) {
+    return result.coordinates;
+  }
+  return {};
+};
+
 // ─────────────────────────────────────────────
 //  Subscribe to live bus location for a route.
 //  Called from LiveTrack.jsx after stops are loaded.
@@ -59,17 +85,6 @@ export const searchBusesController = async (
 //  @param {function} onBusInactive    - called when no driver is active on route
 //  @param {function} onError          - called with error string
 //  @returns {function}                - unsubscribe function (call on unmount)
-//
-//  USAGE in LiveTrack.jsx:
-//    const unsub = subscribeBusLocation(routeId, stops,
-//      (index, busData) => {
-//        setCurrentStopIndex(index);
-//        setBusData(busData);
-//      },
-//      () => setStatus("inactive"),
-//      (msg) => console.error(msg)
-//    );
-//    return () => unsub(); // cleanup
 // ─────────────────────────────────────────────
 export const subscribeBusLocation = (
   routeId,

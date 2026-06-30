@@ -23,9 +23,10 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import LiveBarTrack from "./LiveBarTrack";
 import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons"; // ← new import
 import {
   getRouteStoppingsById,
-  subscribeBusLocation,         // ← new import
+  subscribeBusLocation,
 } from "../../src/controllers/trackController";
 
 export default function LiveTrack({ route }) {
@@ -152,8 +153,8 @@ export default function LiveTrack({ route }) {
 
       {/* HEADER — UNCHANGED */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.back}>←</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+          <Ionicons name="arrow-back" size={26} color="#000" />
         </TouchableOpacity>
         <Text style={styles.title}>Track Bus</Text>
       </View>
@@ -188,11 +189,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 12,
   },
-  back: {
-    fontSize: 36,
-    marginRight: 10,
+  backButton: {
+    padding: 4,
+    marginRight: 8,
   },
   title: {
     fontSize: 20,

@@ -223,9 +223,12 @@ export const subscribeToBusLocationByRoute = (routeId, onUpdate, onError) => {
       if (snapshot.empty) {
         // No active bus on this route — driver hasn't started
         onUpdate({
+          currentStopId:    null,
           currentStopName:  null,   // null = bus not started
+          nextStopId:       null,
           nextStopName:     null,
           distanceToStop:   0,
+          location:         null,
           speed:            0,
           updatedAt:        null,
           isActive:         false,
@@ -236,9 +239,12 @@ export const subscribeToBusLocationByRoute = (routeId, onUpdate, onError) => {
       const data = snapshot.docs[0].data();
 
       onUpdate({
+        currentStopId:    data.currentStopId    || null,
         currentStopName:  data.currentStopName  || null,
+        nextStopId:       data.nextStopId       || null,
         nextStopName:     data.nextStopName     || null,
         distanceToStop:   data.distanceToStop   || 0,
+        location:         data.location         || null,
         speed:            data.speed            || 0,
         updatedAt:        data.updatedAt        || null,
         isActive:         true,    // driver is online
@@ -251,4 +257,44 @@ export const subscribeToBusLocationByRoute = (routeId, onUpdate, onError) => {
   );
 
   return unsubscribe;
+};
+
+// Fetch initial bus location by route ID
+export const getCurrentBusLocationByRoute = async (routeId) => {
+  try {
+    const busQuery = query(
+      collection(db, "busLocations"),
+      where("routeId", "==", routeId),
+      limit(1)
+    );
+    const snapshot = await getDocs(busQuery);
+    if (snapshot.empty) {
+      return { success: true, busLocation: null };
+    }
+    const docSnap = snapshot.docs[0];
+    return { success: true, busLocation: { id: docSnap.id, ...docSnap.data() } };
+  } catch (error) {
+    console.error("[BusLocation] getCurrentBusLocationByRoute error:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+// Fetch all stop coordinates
+export const getStopCoordinatesService = async () => {
+  try {
+    const snap = await getDocs(collection(db, "stopCoordinates"));
+    const coords = {};
+    snap.forEach((docSnap) => {
+      const data = docSnap.data();
+      const name = (data.stopName || docSnap.id).toLowerCase().trim();
+      coords[name] = {
+        latitude: data.location?.latitude || null,
+        longitude: data.location?.longitude || null,
+      };
+    });
+    return { success: true, coordinates: coords };
+  } catch (error) {
+    console.error("[BusLocation] getStopCoordinatesService error:", error);
+    return { success: false, error: error.message };
+  }
 };

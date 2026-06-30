@@ -233,7 +233,7 @@ export default function LiveBarTrack({
         <View style={styles.statusRight}>
           <TouchableOpacity
             style={styles.liveBtn}
-            onPress={() => navigation.navigate("Tracking")}
+            onPress={() => navigation.navigate("Tracking", { bus })}
             activeOpacity={0.8}
           >
             <Text style={styles.liveText}>LIVE MAP</Text>
